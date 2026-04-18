@@ -20,7 +20,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" class="antialiased break-words">
+<html lang="en" class="antialiased break-words dark">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href={withBase(`/space-ahead-logo.png`)} />
@@ -30,9 +30,12 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Sigmar&family=Kanit:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700;900&family=Noto+Serif:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
       rel="stylesheet"
     />
+    <!-- KaTeX CSS for Markdown math formulas -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css" crossorigin="anonymous">
+    
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -42,7 +45,7 @@ const {
     <title>{pageTitle}</title>
   </head>
   <body>
-    <main class="max-w-3xl mx-auto min-h-screen">
+    <main class="w-full mx-auto min-h-screen">
       <Nav activePage={activePage} />
       <slot />
       {showSubscribeForm && <Subscribe class="my-12 w-full" />}

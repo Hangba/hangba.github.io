@@ -2,6 +2,8 @@ import { defineConfig } from "astro/config";
 import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
 import swup from "@swup/astro";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
 
 import tailwindcss from "@tailwindcss/vite";
 
@@ -18,6 +20,11 @@ export default defineConfig({
     preact(),
     sitemap(),
   ],
+
+  markdown: {
+    remarkPlugins: [remarkMath],
+    rehypePlugins: [rehypeKatex],
+  },
 
   image: {
     responsiveStyles: true,

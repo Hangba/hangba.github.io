@@ -19,7 +19,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Kanit", "sans-serif";
+  --font-sans: "New Computer Modern Roman", "New Computer Modern", "Latin Modern Roman", "CMU Serif", "Noto Serif SC", serif;
+  --font-serif: "New Computer Modern Roman", "New Computer Modern", "Latin Modern Roman", "CMU Serif", "Noto Serif SC", serif;
   --color-space-red: var(--space-red);
   --color-space-yellow: var(--space-yellow);
   --color-space-sand: var(--space-sand);
@@ -35,12 +36,18 @@ body {
 }
 
 html.dark body {
-  background-image: linear-gradient(
-    to bottom,
-    var(--color-space-stone) 0%,
-    black 100%
-  );
-  @apply bg-black bg-cover bg-no-repeat text-whitesmoke;
+  background-image: 
+    radial-gradient(2px 2px at 20px 30px, #eee, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 40px 70px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0)),
+    linear-gradient(to bottom, var(--color-space-stone) 0%, black 100%);
+  background-repeat: repeat, repeat, repeat, repeat, repeat, repeat, no-repeat;
+  background-size: 200px 200px, 200px 200px, 200px 200px, 200px 200px, 200px 200px, 200px 200px, 100% 100%;
+  background-attachment: fixed;
+  @apply bg-black text-whitesmoke;
 }
 
 html.light body {
@@ -51,7 +58,7 @@ html.light body {
 
 /* semantic elements */
 header {
-  @apply sticky top-4 z-20 mr-auto ml-auto flex w-full max-w-3xl flex-col items-center justify-center px-0 py-0 text-base;
+  @apply sticky top-4 z-20 mr-auto ml-auto flex w-full flex-col items-center justify-center px-0 py-0 text-base;
 }
 
 header > nav {
@@ -70,7 +77,7 @@ main {
 }
 
 footer {
-  @apply mx-auto mt-12 flex w-full max-w-3xl flex-col flex-wrap items-center justify-center gap-4;
+  @apply mx-auto mt-12 flex w-full flex-col flex-wrap items-center justify-center gap-4;
 }
 
 h1 {
@@ -143,4 +150,13 @@ html.dark a:not(.button-link):hover {
   section {
     gap: 3rem;
   }
+}
+
+.katex {
+  font-size: 1.05em;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
 }

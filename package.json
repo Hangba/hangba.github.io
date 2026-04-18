@@ -2,6 +2,7 @@
   "name": "squalid-shepherd",
   "type": "module",
   "version": "0.12.0",
+  "packageManager": "pnpm@10.18.3",
   "scripts": {
     "dev": "astro dev",
     "start": "astro build && astro preview",
@@ -17,6 +18,8 @@
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^6.0.2",
     "preact": "^10.29.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.2.1"
   },

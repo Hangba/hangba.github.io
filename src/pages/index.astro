@@ -15,62 +15,43 @@ const allPosts = (await getCollection("blogs")).sort(sortItemsByDateDesc);
 <MainLayout
   activePage="home"
   pageTitle={siteConfig.title + " | An Astro Personal Blog Template"}
+  showSubscribeForm={false}
 >
   <div
-    class="jumbo-banner flex flex-col sm:flex-row sm:items-center sm:justify-between w-full px-4 my-12 gap-6"
+    class="jumbo-banner relative flex flex-col items-center justify-center w-full px-4 my-12 gap-6 min-h-[60vh] text-center overflow-hidden"
   >
-    <div class="w-full sm:w-fit sm:max-w-1/2">
+    <div class="w-full sm:w-fit flex flex-col items-center">
       {
         siteConfig.hero?.eyebrowText && (
-          <span class="tag rounded-full text-xs px-2 py-0 border border-gray-500 kanit-light">
+          <span class="tag rounded-full text-xs px-3 py-1 border border-gray-500 bg-black/50 backdrop-blur-sm mb-4">
             {siteConfig.hero?.eyebrowText}
           </span>
         )
       }
-      <h1 class="sigmar-ff leading-tight text-balance sm:pt-0!">
+      <h1 class="leading-tight text-balance sm:pt-0! text-5xl sm:text-7xl tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
         {siteConfig.hero?.title}
       </h1>
-      <p class="kanit-regular text-balance text-xs sm:text-base">
+      <p class="text-balance text-sm sm:text-lg text-gray-300 mt-2 tracking-widest">
         {siteConfig.hero?.text}
       </p>
-      <div
-        class="flex flex-wrap items-center text-xs sm:text-base gap-x-2 gap-y-8 mt-3 sm:mt-12"
-      >
-        {
-          siteConfig.hero?.actions?.map((action, index) => (
-            <Button
-              href={action.href}
-              class={index === 0 ? "space-btn-filled" : "space-btn-outlined"}
-            >
-              {action.text}
-            </Button>
-          ))
-        }
-      </div>
-    </div>
-    <div class="w-full sm:w-fit sm:max-w-1/2">
-      <!-- {siteConfig.hero?.image && <Image src={siteConfig.hero?.image?.src} alt={siteConfig.hero?.image?.alt || ""} inferSize={true} />} -->
-      <Image
-        class="cover-img"
-        src={heroImage}
-        alt={"Astronaut in space"}
-        width={400}
-        height={300}
-      />
     </div>
   </div>
-  <div class="page-content">
+  <div class="page-content flex flex-col items-center w-full max-w-4xl mx-auto">
     <div id="posts" class="flex flex-col items-center justify-center w-full">
-      <h2 class="sigmar-ff text-balance pt-0! pb-8!">Recent Stories</h2>
-      <div class="flex flex-col gap-8 max-w-full text-left">
+      <h2 class="sigmar-ff text-balance pt-0! pb-8! text-3xl opacity-80 border-b border-gray-800 w-full text-center mb-8">Recent Stories</h2>
+      <div class="flex flex-col gap-8 w-full text-center">
         {
           allPosts
             .slice(0, siteConfig.recentPostLimit)
-            .map((post) => <PostCardPreview post={post} />)
+            .map((post) => (
+              <div class="flex flex-col items-center">
+                <PostCardPreview post={post} />
+              </div>
+            ))
         }
       </div>
-      <Button href={withBase("/blog")} class="space-btn-filled mt-8">
-        View All Posts <ArrowRight class="w-5 h-5 fill-current ml-4" />
+      <Button href={withBase("/blog")} class="space-btn-filled mt-12 px-8 py-3 rounded-md  hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+        cd ~/blog <ArrowRight class="w-5 h-5 fill-current ml-4 inline" />
       </Button>
     </div>
   </div>

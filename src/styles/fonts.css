@@ -1,42 +1,48 @@
+/* We convert all custom font classes to use New Computer Modern Roman for English and Noto Serif SC for Chinese */
 .sigmar-ff {
-  font-family: "Sigmar", sans-serif;
+  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", "Noto Serif SC", serif;
   font-optical-sizing: auto;
-  font-weight: 400;
+  font-weight: 900;
   font-style: normal;
 }
 
 .kanit-light {
-  /* font-family: "Kanit", sans-serif; */
+  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", "Noto Serif SC", serif;
   font-weight: 300;
   font-style: normal;
 }
 
 .kanit-light-italic {
-  /* font-family: "Kanit", sans-serif; */
+  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", "Noto Serif SC", serif;
   font-weight: 300;
   font-style: italic;
 }
 
 .kanit-regular {
-  /* font-family: "Kanit", sans-serif; */
+  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", "Noto Serif SC", serif;
   font-weight: 400;
   font-style: normal;
 }
 
 .kanit-regular-italic {
-  /* font-family: "Kanit", sans-serif; */
+  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", "Noto Serif SC", serif;
   font-weight: 400;
   font-style: italic;
 }
 
 .kanit-bold {
-  /* font-family: "Kanit", sans-serif; */
+  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", "Noto Serif SC", serif;
   font-weight: 700;
   font-style: normal;
 }
 
 .kanit-bold-italic {
-  /* font-family: "Kanit", sans-serif; */
+  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", "Noto Serif SC", serif;
   font-weight: 700;
   font-style: italic;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", "Noto Serif SC", serif;
+  font-weight: 900 !important;
 }
