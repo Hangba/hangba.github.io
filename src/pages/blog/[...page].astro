@@ -19,19 +19,29 @@ const allPosts = page.data;
 ---
 
 <MainLayout activePage="blog" pageTitle={siteConfig.title + " | Blog Archive"}>
-  <div class="page-content py-8 text-center">
-    <h1 class="sigmar-ff">Blog</h1>
+  <div class="page-content py-8 text-center landing-content" data-reveal-root>
+    <h1 class="sigmar-ff" data-reveal style="--reveal-delay:0ms">Blog</h1>
     {
       siteConfig.blog?.description && (
-        <p class="font-light text-balance">{siteConfig.blog?.description}</p>
+        <p class="font-light text-balance" data-reveal style="--reveal-delay:120ms">{siteConfig.blog?.description}</p>
       )
     }
 
     <div
       class="flex flex-col text-left gap-8 mb-4 text-sm sm:text-base max-w-fit mx-auto"
+      data-reveal style="--reveal-delay:240ms"
     >
       {allPosts.map((post) => <PostCardPreview post={post} />)}
     </div>
-    <Pagination page={page} class="mb-16 sm:mb-24" />
+    <div data-reveal style="--reveal-delay:360ms">
+      <Pagination page={page} class="mb-16 sm:mb-24" />
+    </div>
   </div>
 </MainLayout>
+
+<style>
+  .landing-content {
+    position: relative;
+    z-index: 3;
+  }
+</style>

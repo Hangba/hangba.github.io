@@ -1,0 +1,44 @@
+---
+type Props = { hint?: string };
+const { hint = "向下滚动 ↓ 着陆" } = Astro.props;
+---
+
+<section class="planet-approach" aria-hidden="true">
+    <span class="approach-hint">{hint}</span>
+</section>
+
+<style>
+    .planet-approach {
+        position: relative;
+        min-height: 100vh;
+        min-height: 100svh;
+        pointer-events: none;
+    }
+    .approach-hint {
+        position: absolute;
+        bottom: 6vh;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0.55;
+        letter-spacing: 0.5em;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: rgba(245, 241, 234, 0.85);
+        animation: approach-float 2.4s ease-in-out infinite;
+        text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+    }
+    @keyframes approach-float {
+        0%,
+        100% {
+            transform: translate(-50%, 0);
+        }
+        50% {
+            transform: translate(-50%, 6px);
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .approach-hint {
+            animation: none;
+        }
+    }
+</style>

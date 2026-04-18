@@ -1,0 +1,128 @@
+---
+import siteConfig from "../site.config";
+import { withBase } from "../utils/helpers";
+---
+
+<section class="hero" data-reveal-root>
+    {
+        siteConfig.hero?.eyebrowText && (
+            <span class="hero-eyebrow" data-reveal style="--reveal-delay:0ms">
+                {siteConfig.hero?.eyebrowText}
+            </span>
+        )
+    }
+    <h1 class="hero-title" data-reveal style="--reveal-delay:80ms">
+        {siteConfig.hero?.title}
+    </h1>
+    <p class="hero-sub" data-reveal style="--reveal-delay:240ms">
+        {siteConfig.hero?.text}
+    </p>
+    <div class="hero-actions" data-reveal style="--reveal-delay:380ms">
+        <a class="hero-cta" href={withBase("/blog")}>
+            <span>cd ~/blog</span>
+            <span aria-hidden="true">→</span>
+        </a>
+        <a class="hero-link" href="#recent-stories">↓ scroll</a>
+    </div>
+</section>
+
+<style>
+    .hero {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        padding: 38vh 6vw 8vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1.25rem;
+        max-width: 1280px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .hero-eyebrow {
+        display: inline-block;
+        width: fit-content;
+        font-size: 0.75rem;
+        letter-spacing: 0.45em;
+        text-transform: uppercase;
+        padding: 0.4rem 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(12px);
+        color: var(--planet-accent, #e2d1c3);
+    }
+
+    .hero-title {
+        font-size: clamp(3rem, 9vw, 8.5rem);
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        font-weight: 300;
+        max-width: 18ch;
+        margin: 0;
+        color: #f5f1ea;
+        text-shadow: 0 4px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero-sub {
+        max-width: 36ch;
+        font-size: clamp(1rem, 1.4vw, 1.25rem);
+        line-height: 1.6;
+        color: rgba(245, 241, 234, 0.72);
+        margin: 0;
+        letter-spacing: 0.04em;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+
+    .hero-cta {
+        display: inline-flex;
+        gap: 0.6rem;
+        align-items: center;
+        padding: 0.85rem 1.6rem;
+        border-radius: 999px;
+        background: var(--planet-accent, #e2d1c3);
+        color: #0a0a0a;
+        font-size: 0.95rem;
+        letter-spacing: 0.08em;
+        text-decoration: none;
+        transition:
+            transform 0.3s ease,
+            box-shadow 0.3s ease;
+    }
+    .hero-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(226, 209, 195, 0.25);
+    }
+
+    .hero-link {
+        font-size: 0.8rem;
+        letter-spacing: 0.4em;
+        opacity: 0.5;
+        text-decoration: none;
+        color: inherit;
+    }
+    .hero-link:hover {
+        opacity: 1;
+    }
+
+    @media (max-width: 640px) {
+        .hero {
+            padding: 30vh 5vw 6vh;
+            min-height: 100svh;
+        }
+        .hero-title {
+            max-width: 14ch;
+        }
+    }
+</style>

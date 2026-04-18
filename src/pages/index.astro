@@ -5,54 +5,85 @@ import siteConfig from "../site.config";
 import { sortItemsByDateDesc, withBase } from "../utils/helpers";
 import PostCardPreview from "../components/PostCardPreview.astro";
 import Button from "../components/Button.astro";
-import { Image } from "astro:assets";
-import heroImage from "../assets/images/pixeltrue-space-discovery.svg";
+import Hero from "../components/Hero.astro";
 import ArrowRight from "../icons/ArrowRight.astro";
 
 const allPosts = (await getCollection("blogs")).sort(sortItemsByDateDesc);
 ---
 
 <MainLayout
-  activePage="home"
-  pageTitle={siteConfig.title + " | An Astro Personal Blog Template"}
-  showSubscribeForm={false}
+    activePage="home"
+    pageTitle={siteConfig.title + " | An Astro Personal Blog Template"}
 >
-  <div
-    class="jumbo-banner relative flex flex-col items-center justify-center w-full px-4 my-12 gap-6 min-h-[60vh] text-center overflow-hidden"
-  >
-    <div class="w-full sm:w-fit flex flex-col items-center">
-      {
-        siteConfig.hero?.eyebrowText && (
-          <span class="tag rounded-full text-xs px-3 py-1 border border-gray-500 bg-black/50 backdrop-blur-sm mb-4">
-            {siteConfig.hero?.eyebrowText}
-          </span>
-        )
-      }
-      <h1 class="leading-tight text-balance sm:pt-0! text-5xl sm:text-7xl tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400">
-        {siteConfig.hero?.title}
-      </h1>
-      <p class="text-balance text-sm sm:text-lg text-gray-300 mt-2 tracking-widest">
-        {siteConfig.hero?.text}
-      </p>
-    </div>
-  </div>
-  <div class="page-content flex flex-col items-center w-full max-w-4xl mx-auto">
-    <div id="posts" class="flex flex-col items-center justify-center w-full">
-      <h2 class="sigmar-ff text-balance pt-0! pb-8! text-3xl opacity-80 border-b border-gray-800 w-full text-center mb-8">Recent Stories</h2>
-      <div class="flex flex-col gap-8 w-full text-center">
-        {
-          allPosts
-            .slice(0, siteConfig.recentPostLimit)
-            .map((post) => (
-              <div class="flex flex-col items-center">
-                <PostCardPreview post={post} />
-              </div>
-            ))
-        }
-      </div>
-      <Button href={withBase("/blog")} class="space-btn-filled mt-12 px-8 py-3 rounded-md  hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-        cd ~/blog <ArrowRight class="w-5 h-5 fill-current ml-4 inline" />
-      </Button>
-    </div>
-  </div>
+    <Hero />
+
+    <section
+        id="recent-stories"
+        class="recent-stories"
+        data-reveal-root
+    >
+        <h2 class="sigmar-ff section-title" data-reveal style="--reveal-delay:0ms">
+            Recent Stories
+        </h2>
+        <div class="post-list">
+            {
+                allPosts
+                    .slice(0, siteConfig.recentPostLimit)
+                    .map((post, i) => (
+                        <div
+                            class="post-row"
+                            data-reveal
+                            style={`--reveal-delay:${120 + i * 90}ms`}
+                        >
+                            <PostCardPreview post={post} />
+                        </div>
+                    ))
+            }
+        </div>
+        <div data-reveal style={`--reveal-delay:${120 + allPosts.length * 90}ms`}>
+            <Button
+                href={withBase("/blog")}
+                class="space-btn-filled mt-12 px-8 py-3 rounded-md hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+            >
+                cd ~/blog
+                <ArrowRight class="w-5 h-5 fill-current ml-4 inline" />
+            </Button>
+        </div>
+    </section>
 </MainLayout>
+
+<style>
+    .recent-stories {
+        position: relative;
+        z-index: 3;
+        max-width: 56rem;
+        margin: 0 auto;
+        padding: 8vh 1.5rem 6vh;
+        text-align: center;
+        background:
+            radial-gradient(
+                ellipse at top,
+                rgba(0, 0, 0, 0.55) 0%,
+                rgba(0, 0, 0, 0) 70%
+            );
+    }
+    .section-title {
+        opacity: 0.85;
+        font-size: 1.75rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        padding-bottom: 2rem;
+        margin-bottom: 2.5rem;
+    }
+    .post-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        align-items: center;
+    }
+    .post-row {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+</style>

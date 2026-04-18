@@ -1,0 +1,20 @@
+---
+import type { Planet } from "../data/planets";
+
+type Props = { planet: Planet };
+const { planet } = Astro.props;
+const planetJson = JSON.stringify(planet);
+---
+
+<div
+    id="planet-stage"
+    data-planet={planetJson}
+    aria-hidden="true"
+    transition:persist="planet-stage"
+>
+    <canvas id="planet-canvas"></canvas>
+</div>
+
+<script>
+    import "../scripts/planet-stage";
+</script>

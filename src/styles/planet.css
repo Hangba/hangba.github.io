@@ -1,0 +1,230 @@
+/* ----------------------------------------------------------------------------
+ * Planet Stage
+ * - One persistent canvas, transformed via CSS per page (rest poses)
+ * - Scroll-driven shrink on subpages via --planet-progress (0..1)
+ * - Swallow intro + reveal stagger driven by ClientRouter lifecycle
+ * -------------------------------------------------------------------------- */
+
+#planet-stage {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    transform-origin: center center;
+    will-change: transform, opacity;
+    transform: translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0)
+        scale(var(--p-s, 1));
+    transition:
+        transform 900ms cubic-bezier(0.65, 0, 0.35, 1),
+        opacity 600ms ease;
+}
+
+#planet-stage canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* 2D fallback (no WebGL): a textured circle with limb darkening */
+#planet-stage.planet-fallback canvas {
+    display: none;
+}
+#planet-stage.planet-fallback::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(72vmin, 720px);
+    height: min(72vmin, 720px);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background-image: var(--planet-color-map);
+    background-size: 200% 100%;
+    background-position: 30% center;
+    box-shadow:
+        inset -40px -30px 80px 0 rgba(0, 0, 0, 0.85),
+        inset 30px 20px 60px 0 rgba(255, 245, 232, 0.18),
+        0 0 80px rgba(255, 245, 232, 0.05);
+    filter: contrast(1.05) saturate(0.95);
+}
+
+/* ----------------------------------------------------------------------------
+ * Per-page rest poses
+ * --p-x / --p-y: translate, --p-s: scale (1.0 ≈ ~80vmin diameter)
+ * -------------------------------------------------------------------------- */
+
+html[data-page="home"] {
+    --p-x: 0vw;
+    --p-y: -42vh;
+    --p-s: 1.15;
+}
+html[data-page="blog"] {
+    --p-x: 38vw;
+    --p-y: 0vh;
+    --p-s: 0.75;
+}
+html[data-page="about"] {
+    --p-x: 32vw;
+    --p-y: -32vh;
+    --p-s: 0.45;
+}
+html[data-page="contact"] {
+    --p-x: 32vw;
+    --p-y: -32vh;
+    --p-s: 0.45;
+}
+html[data-page="tags"] {
+    --p-x: 32vw;
+    --p-y: -32vh;
+    --p-s: 0.45;
+}
+html[data-page="404"] {
+    --p-x: 0vw;
+    --p-y: -28vh;
+    --p-s: 0.32;
+}
+
+/* ----------------------------------------------------------------------------
+ * Subpage scroll-driven growth — starts small in top-right corner, grows to
+ * fill viewport as user scrolls the first 100vh. Content (z-index:3) stays
+ * readable on top; the planet fills the BACKGROUND, not the foreground.
+ * -------------------------------------------------------------------------- */
+
+html[data-page="home"]:not(.is-swallowing) #planet-stage {
+    transform: translate3d(
+            0,
+            calc(-42vh - 20vh * var(--planet-progress, 0)),
+            0
+        )
+        scale(calc(1.15 - 0.9 * var(--planet-progress, 0)));
+    transition: none;
+}
+
+html[data-page="blog"]:not(.is-swallowing) #planet-stage {
+    transform: translate3d(
+            calc((1 - var(--planet-progress, 0)) * 38vw),
+            calc((1 - var(--planet-progress, 0)) * 0vh),
+            0
+        )
+        scale(calc(0.75 + 3.85 * var(--planet-progress, 0)));
+    transition: none;
+}
+
+html[data-page="about"]:not(.is-swallowing) #planet-stage,
+html[data-page="contact"]:not(.is-swallowing) #planet-stage,
+html[data-page="tags"]:not(.is-swallowing) #planet-stage {
+    transform: translate3d(
+            calc((1 - var(--planet-progress, 0)) * 32vw),
+            calc((1 - var(--planet-progress, 0)) * -32vh),
+            0
+        )
+        scale(calc(0.45 + 4.15 * var(--planet-progress, 0)));
+    transition: none;
+}
+
+/* ----------------------------------------------------------------------------
+ * Swallow intro (between pages)
+ * Sustained ~700ms while ClientRouter loads next page in parallel.
+ * -------------------------------------------------------------------------- */
+
+html.is-swallowing #planet-stage {
+    transform: translate3d(0, 0, 0) scale(8);
+    transition: transform 700ms cubic-bezier(0.7, 0, 0.3, 1);
+}
+
+html.is-swallowing main {
+    opacity: 0;
+    transform: scale(0.96);
+    transition:
+        opacity 500ms ease,
+        transform 600ms ease;
+}
+
+main {
+    transition:
+        opacity 600ms ease 80ms,
+        transform 600ms ease 80ms;
+}
+
+/* ----------------------------------------------------------------------------
+ * Reveal stagger — children with [data-reveal] inside [data-reveal-root]
+ * fade/translate up after page-load fires .is-revealed
+ * -------------------------------------------------------------------------- */
+
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+        opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+
+html.is-revealed [data-reveal] {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ----------------------------------------------------------------------------
+ * Planet-tinted accents (driven by --planet-accent on <html>)
+ * -------------------------------------------------------------------------- */
+
+html.dark a:not(.button-link):hover {
+    color: var(--planet-accent, #ffff85) !important;
+}
+
+/* ----------------------------------------------------------------------------
+ * Mobile — keep planet visible but smaller; never bury the title
+ * -------------------------------------------------------------------------- */
+
+@media (max-width: 640px) {
+    html[data-page="home"] {
+        --p-x: 0vw;
+        --p-y: -32vh;
+        --p-s: 0.8;
+    }
+    html[data-page="home"]:not(.is-swallowing) #planet-stage {
+        transform: translate3d(
+                0,
+                calc(-32vh - 16vh * var(--planet-progress, 0)),
+                0
+            )
+            scale(calc(0.8 - 0.6 * var(--planet-progress, 0)));
+    }
+    html[data-page="blog"]:not(.is-swallowing) #planet-stage {
+        transform: translate3d(
+                calc((1 - var(--planet-progress, 0)) * 28vw),
+                0,
+                0
+            )
+            scale(calc(0.6 + 2.6 * var(--planet-progress, 0)));
+    }
+    html[data-page="about"]:not(.is-swallowing) #planet-stage,
+    html[data-page="contact"]:not(.is-swallowing) #planet-stage,
+    html[data-page="tags"]:not(.is-swallowing) #planet-stage {
+        transform: translate3d(
+                calc((1 - var(--planet-progress, 0)) * 22vw),
+                calc((1 - var(--planet-progress, 0)) * -22vh),
+                0
+            )
+            scale(calc(0.35 + 2.85 * var(--planet-progress, 0)));
+    }
+}
+
+/* ----------------------------------------------------------------------------
+ * Reduced motion — strip every transition/animation
+ * -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+    #planet-stage,
+    html.is-swallowing #planet-stage,
+    html.is-swallowing main,
+    main,
+    [data-reveal] {
+        transition: none !important;
+    }
+    [data-reveal] {
+        opacity: 1;
+        transform: none;
+    }
+}

@@ -28,20 +28,24 @@ const { activePage } = Astro.props;
     />
   </div>
 </header>
-<script is:inline>
-  document.querySelector("#hamburger-menu").addEventListener("click", () => {
-    console.log("clicked...");
-    document.querySelector("#mobile-links").classList.remove("slideOutUp");
-    document.querySelector("#mobile-links").classList.add("expanded");
-    document.querySelector("#mobile-links").classList.add("slideInDown");
-  });
-
-  document.querySelector(".close-menu").addEventListener("click", () => {
-    console.log("clicked...");
-    document.querySelector("#mobile-links").classList.add("slideOutUp");
-    document.querySelector("#mobile-links").classList.add("expanded");
-    document.querySelector("#mobile-links").classList.remove("slideInDown");
-  });
+<script>
+  function bindNav() {
+    const ham = document.querySelector("#hamburger-menu");
+    const close = document.querySelector(".close-menu");
+    const mobile = document.querySelector("#mobile-links");
+    if (!ham || !close || !mobile) return;
+    ham.addEventListener("click", () => {
+      mobile.classList.remove("slideOutUp");
+      mobile.classList.add("expanded", "slideInDown");
+    });
+    close.addEventListener("click", () => {
+      mobile.classList.add("slideOutUp");
+      mobile.classList.add("expanded");
+      mobile.classList.remove("slideInDown");
+    });
+  }
+  bindNav();
+  document.addEventListener("astro:page-load", bindNav);
 </script>
 
 <style>

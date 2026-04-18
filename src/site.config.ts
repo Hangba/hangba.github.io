@@ -42,12 +42,6 @@ export type ContactInfo = {
     }[];
 };
 
-export type Subscribe = {
-    title?: string;
-    text?: string;
-    formUrl: string;
-};
-
 export type SiteConfig = {
     website: string;
     logo?: Image;
@@ -60,7 +54,6 @@ export type SiteConfig = {
     hero?: Hero;
     about?: About;
     contactInfo?: ContactInfo;
-    subscribe?: Subscribe;
     blog?: Blog;
     postsPerPage?: number;
     recentPostLimit: number;
@@ -141,10 +134,6 @@ const siteConfig: SiteConfig = {
             {
                 text: 'Read Now',
                 href: withBase('/blog')
-            },
-            {
-                text: 'Subscribe',
-                href: '#subscribe'
             }
         ]
     },
@@ -174,11 +163,6 @@ const siteConfig: SiteConfig = {
                 href: "https://github.com/"
             }
         ]
-    },
-    subscribe: {
-        title: 'Subscribe to Space Ahead',
-        text: 'One update per week. All the latest stories in your inbox.',
-        formUrl: '#'
     },
     blog: {
         description: "Read about my space adventures, explorations and the aliens I've met on my journeys."
