@@ -8,7 +8,7 @@ import tailwindcss from "@tailwindcss/vite";
 // https://astro.build/config
 
 export default defineConfig({
-  site: 'https://hangbasteve.github.io',
+  site: 'https://hangba.github.io',
   integrations: [
     swup({
       theme: ["overlay", { direction: "to-top" }],
