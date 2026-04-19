@@ -319,6 +319,11 @@ function switchPlanet(nextPlanet: Planet) {
     root.style.setProperty("--planet-theme", nextPlanet.themeColor);
     root.style.setProperty("--planet-accent", nextPlanet.accentColor);
     s.stageEl.dataset.planet = JSON.stringify(nextPlanet);
+    try {
+        sessionStorage.setItem("planet:current", JSON.stringify(nextPlanet));
+    } catch {
+        /* ignore */
+    }
 }
 
 function startThree(stage: HTMLElement, planet: Planet) {
@@ -482,6 +487,26 @@ function refreshScrollOnNav() {
     if (fn) fn();
 }
 
+function reapplyThemeFromStage() {
+    const stage = document.getElementById("planet-stage");
+    const root = document.documentElement;
+    let planet: Planet | null = null;
+    if (stage) {
+        planet = readPlanet(stage);
+    }
+    if (!planet) {
+        try {
+            const raw = sessionStorage.getItem("planet:current");
+            if (raw) planet = JSON.parse(raw) as Planet;
+        } catch {
+            /* ignore */
+        }
+    }
+    if (!planet) return;
+    root.style.setProperty("--planet-theme", planet.themeColor);
+    root.style.setProperty("--planet-accent", planet.accentColor);
+}
+
 function init() {
     const stage = document.getElementById("planet-stage");
     if (!stage) return;
@@ -525,11 +550,13 @@ document.addEventListener("astro:before-preparation", (event) => {
 document.addEventListener("astro:after-swap", () => {
     document.documentElement.classList.remove("is-navigating");
     window.scrollTo(0, 0);
+    reapplyThemeFromStage();
     refreshScrollOnNav();
 });
 
 document.addEventListener("astro:page-load", () => {
     init();
+    reapplyThemeFromStage();
     requestAnimationFrame(() =>
         document.documentElement.classList.add("is-revealed")
     );

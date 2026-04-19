@@ -1,11 +1,12 @@
 ---
 import type { GetStaticPathsOptions, Page } from "astro";
 import { type CollectionEntry, getCollection } from "astro:content";
+import { Image } from "astro:assets";
 import Pagination from "../../components/Pagination.astro";
-import { sortItemsByDateDesc } from "../../utils/helpers";
+import { sortItemsByDateDesc, withBase } from "../../utils/helpers";
 import MainLayout from "../../layouts/MainLayout.astro";
 import siteConfig from "../../site.config";
-import PostCardPreview from "../../components/PostCardPreview.astro";
+import FormattedDate from "../../components/FormattedDate.astro";
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   const blogs = (await getCollection("blogs")).sort(sortItemsByDateDesc);
@@ -16,23 +17,70 @@ type Props = { page: Page<CollectionEntry<"blogs">> };
 
 const { page } = Astro.props;
 const allPosts = page.data;
+const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
 ---
 
 <MainLayout activePage="blog" pageTitle={siteConfig.title + " | Blog Archive"}>
-  <div class="page-content py-8 text-center landing-content" data-reveal-root>
-    <h1 class="sigmar-ff" data-reveal style="--reveal-delay:0ms">Blog</h1>
-    {
-      siteConfig.blog?.description && (
-        <p class="font-light text-balance" data-reveal style="--reveal-delay:120ms">{siteConfig.blog?.description}</p>
-      )
-    }
+  <div class="page-content landing-content magazine-wrap" data-reveal-root>
+    <header class="magazine-header" data-reveal style="--reveal-delay:0ms">
+      <span class="magazine-kicker">The Journal &mdash; Vol. {page.currentPage}</span>
+      <h1 class="magazine-masthead">Blog</h1>
+      {
+        siteConfig.blog?.description && (
+          <p class="magazine-dek">{siteConfig.blog?.description}</p>
+        )
+      }
+      <div class="magazine-rule" aria-hidden="true">
+        <span class="magazine-rule-ornament">&#10070;</span>
+      </div>
+    </header>
 
-    <div
-      class="flex flex-col text-left gap-8 mb-4 text-sm sm:text-base max-w-2xl mx-auto"
-      data-reveal style="--reveal-delay:240ms"
-    >
-      {allPosts.map((post) => <PostCardPreview post={post} />)}
+    <div class="magazine-frame" data-reveal style="--reveal-delay:200ms">
+      {
+        allPosts.map((post, i) => {
+          const index = startIndex + i + 1;
+          const { title, pubDate, description, author, image } = post.data;
+          return (
+            <article class="magazine-entry">
+              <div class="magazine-entry-meta">
+                <span class="magazine-number">
+                  {String(index).padStart(2, "0")}
+                </span>
+                <span class="magazine-date">
+                  <FormattedDate date={new Date(pubDate)} />
+                </span>
+                {author && (
+                  <span class="magazine-byline">by {author}</span>
+                )}
+              </div>
+              <a class="magazine-link" href={withBase("/blog/" + post.id)}>
+                <h2 class="magazine-title">{title}</h2>
+                {description && (
+                  <p class="magazine-excerpt">{description}</p>
+                )}
+                <span class="magazine-more">Read the piece &rarr;</span>
+              </a>
+              {image && image.url && (
+                <a class="magazine-figure" href={withBase("/blog/" + post.id)}>
+                  <Image
+                    src={image.url}
+                    alt={image.alt || ""}
+                    width={640}
+                    height={360}
+                  />
+                </a>
+              )}
+              {i < allPosts.length - 1 && (
+                <div class="magazine-sep" aria-hidden="true">
+                  <span>&middot; &middot; &middot;</span>
+                </div>
+              )}
+            </article>
+          );
+        })
+      }
     </div>
+
     <div data-reveal style="--reveal-delay:360ms">
       <Pagination page={page} class="mb-16 sm:mb-24" />
     </div>
@@ -40,8 +88,240 @@ const allPosts = page.data;
 </MainLayout>
 
 <style>
-  .landing-content {
+  .magazine-wrap {
     position: relative;
     z-index: 3;
+  }
+
+  .magazine-header {
+    text-align: center;
+    padding: 4rem 1rem 2rem;
+    margin-bottom: 0;
+  }
+
+  .magazine-kicker {
+    display: inline-block;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: var(--planet-accent, #e2d1c3);
+    margin-bottom: 1.25rem;
+    opacity: 0.9;
+  }
+
+  .magazine-masthead {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-weight: 300;
+    font-size: clamp(3.5rem, 8vw, 6.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0 0 1rem;
+    color: #f5f1ea;
+  }
+
+  .magazine-dek {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-style: italic;
+    font-size: clamp(1rem, 1.2vw, 1.15rem);
+    max-width: 34ch;
+    margin: 0 auto 1.75rem;
+    color: rgba(245, 241, 234, 0.72);
+    line-height: 1.6;
+  }
+
+  .magazine-rule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem auto 0;
+    max-width: 20rem;
+    color: var(--planet-accent, #e2d1c3);
+    opacity: 0.65;
+  }
+  .magazine-rule::before,
+  .magazine-rule::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  }
+  .magazine-rule-ornament {
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+  }
+
+  .magazine-frame {
+    position: relative;
+    max-width: 44rem;
+    margin: 2rem auto 2.5rem;
+    padding: 3rem clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 2px;
+    background: rgba(12, 12, 16, 0.38);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 24px 48px -28px rgba(0, 0, 0, 0.6);
+    text-align: left;
+  }
+
+  .magazine-frame::before,
+  .magazine-frame::after {
+    content: "";
+    position: absolute;
+    left: clamp(1.5rem, 4vw, 3rem);
+    right: clamp(1.5rem, 4vw, 3rem);
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.18),
+      transparent
+    );
+  }
+  .magazine-frame::before {
+    top: 0.75rem;
+  }
+  .magazine-frame::after {
+    bottom: 0.75rem;
+  }
+
+  html.light .magazine-frame {
+    background: rgba(255, 255, 255, 0.55);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .magazine-entry {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .magazine-entry-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: rgba(245, 241, 234, 0.58);
+  }
+
+  .magazine-number {
+    color: var(--planet-accent, #e2d1c3);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    font-size: 0.9rem;
+  }
+
+  .magazine-date {
+    letter-spacing: 0.25em;
+  }
+
+  .magazine-byline {
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0.08em;
+    font-size: 0.78rem;
+  }
+
+  .magazine-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .magazine-title {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-weight: 400;
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    line-height: 1.1;
+    margin: 0.3rem 0 0.75rem;
+    color: #f5f1ea;
+    letter-spacing: -0.01em;
+    transition: color 240ms ease;
+  }
+
+  .magazine-link:hover .magazine-title {
+    color: var(--planet-accent, #e2d1c3);
+  }
+
+  .magazine-excerpt {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-style: italic;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(245, 241, 234, 0.78);
+    margin: 0 0 0.9rem;
+  }
+
+  .magazine-more {
+    display: inline-block;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--planet-accent, #e2d1c3);
+    opacity: 0.85;
+    transition: opacity 240ms ease, transform 240ms ease;
+  }
+
+  .magazine-link:hover .magazine-more {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+
+  .magazine-figure {
+    display: block;
+    margin-top: 1rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .magazine-figure :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: grayscale(0.35) saturate(0.85) contrast(1.05);
+    transition: filter 420ms ease, transform 420ms ease;
+    border-radius: 0;
+  }
+  .magazine-figure:hover :global(img) {
+    filter: grayscale(0) saturate(1) contrast(1);
+    transform: scale(1.02);
+  }
+
+  .magazine-sep {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2.5rem 0 1rem;
+    color: rgba(245, 241, 234, 0.35);
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    letter-spacing: 0.8em;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 640px) {
+    .magazine-header {
+      padding: 3rem 0.5rem 1.5rem;
+    }
+    .magazine-frame {
+      padding: 2rem 1.25rem;
+    }
+    .magazine-entry-meta {
+      gap: 0.65rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      flex-wrap: wrap;
+    }
   }
 </style>

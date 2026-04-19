@@ -54,14 +54,19 @@
  * -------------------------------------------------------------------------- */
 
 html[data-page="home"] {
-    --p-x: 0vw;
-    --p-y: 8vh;
-    --p-s: 0.75;
+    --p-x: -28vw;
+    --p-y: -18vh;
+    --p-s: 1.1;
 }
 html[data-page="blog"] {
     --p-x: 38vw;
     --p-y: 0vh;
     --p-s: 0.75;
+}
+html[data-page="blog-post"] {
+    --p-x: 38vw;
+    --p-y: -30vh;
+    --p-s: 0.5;
 }
 html[data-page="about"] {
     --p-x: 32vw;
@@ -89,16 +94,6 @@ html[data-page="404"] {
  * fill viewport as user scrolls the first 100vh. Content (z-index:3) stays
  * readable on top; the planet fills the BACKGROUND, not the foreground.
  * -------------------------------------------------------------------------- */
-
-html[data-page="home"]:not(.is-navigating) #planet-stage {
-    transform: translate3d(
-            0,
-            calc(8vh - 22vh * var(--planet-progress, 0)),
-            0
-        )
-        scale(calc(0.75 - 0.5 * var(--planet-progress, 0)));
-    transition: none;
-}
 
 html[data-page="blog"]:not(.is-navigating) #planet-stage {
     transform: translate3d(
@@ -194,17 +189,14 @@ html.dark a:not(.button-link):hover {
 
 @media (max-width: 640px) {
     html[data-page="home"] {
-        --p-x: 0vw;
-        --p-y: 8vh;
-        --p-s: 0.8;
+        --p-x: -10vw;
+        --p-y: -26vh;
+        --p-s: 0.85;
     }
-    html[data-page="home"]:not(.is-navigating) #planet-stage {
-        transform: translate3d(
-                0,
-                calc(8vh - 20vh * var(--planet-progress, 0)),
-                0
-            )
-            scale(calc(0.8 - 0.55 * var(--planet-progress, 0)));
+    html[data-page="blog-post"] {
+        --p-x: 28vw;
+        --p-y: -28vh;
+        --p-s: 0.45;
     }
     html[data-page="blog"]:not(.is-navigating) #planet-stage {
         transform: translate3d(

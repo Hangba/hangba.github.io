@@ -35,39 +35,68 @@ type Props = {
 const { post, prevPost, nextPost } = Astro.props;
 const { title, pubDate, author, tags = [], image } = post.data;
 const { Content } = await render(post);
+const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
 ---
 
-<MainLayout pageTitle={siteConfig.title + " | " + title}>
-  <div class="page-content">
-    <h1 class="sigmar-ff text-center text-balance">{title}</h1>
-    <p class="leading-8 text-center kanit-regular text-balance text-xs">
-      by 🧑‍🚀 <span class="kanit-bold">{author}</span> on <span class="kanit-bold"
-        >{new Date(pubDate).toDateString()}</span
-      >
-    </p>
+<MainLayout activePage="blog" pageKind="blog-post" pageTitle={siteConfig.title + " | " + title}>
+  <article class="page-content landing-content post-wrap" data-reveal-root>
+    <header class="post-header">
+      <span class="post-kicker" data-reveal style="--reveal-delay:0ms">
+        The Journal &mdash; Dispatch
+      </span>
+      <h1 class="post-title" data-reveal style="--reveal-delay:80ms">{title}</h1>
+      <div class="post-meta" data-reveal style="--reveal-delay:160ms">
+        <span class="post-byline">
+          by <em>{author}</em>
+        </span>
+        <span class="post-meta-dot" aria-hidden="true">&middot;</span>
+        <time class="post-date">{dateLabel}</time>
+      </div>
+      <div class="post-rule" aria-hidden="true" data-reveal style="--reveal-delay:200ms">
+        <span class="post-rule-ornament">&#10070;</span>
+      </div>
+    </header>
+
     {
       image && image.url && (
-        <Image class="mb-8 my-6" src={image?.url} alt={image?.alt || ""} />
+        <figure class="post-figure" data-reveal style="--reveal-delay:240ms">
+          <Image src={image.url} alt={image.alt || ""} />
+          {image.alt && <figcaption>{image.alt}</figcaption>}
+        </figure>
       )
     }
-    <div class="font-light text-left">
-      <Content />
+
+    <div class="blog-body-frame" data-reveal style="--reveal-delay:320ms">
+      <div class="blog-body">
+        <Content />
+      </div>
     </div>
-    <p class="kanit-regular text-center text-balance text-xs">
-      Tagged: {
-        tags.map((tag) => (
-          <Button
-            class="px-4! m-2"
-            href={withBase("/tags/" + createSlugFromTitle(tag))}
-          >
-            {tag}
-          </Button>
-        ))
-      }
-    </p>
-    <div
-      class="flex flex-col sm:flex-row items-center justify-center gap-4 my-8"
-    >
+
+    {tags && tags.length > 0 && (
+      <div class="post-tags" data-reveal style="--reveal-delay:400ms">
+        <span class="post-tags-label">Filed under</span>
+        {
+          tags.map((tag) => (
+            <Button
+              class="px-4! m-1"
+              href={withBase("/tags/" + createSlugFromTitle(tag))}
+            >
+              {tag}
+            </Button>
+          ))
+        }
+      </div>
+    )}
+
+    <div class="post-footer-rule" aria-hidden="true" data-reveal style="--reveal-delay:440ms">
+      <span>&#10070;</span>
+    </div>
+
+    <nav class="post-nav" data-reveal style="--reveal-delay:480ms">
       <Button class="back-link" href={withBase("/blog")}>
         <ArrowLeft class="w-5 h-5 fill-current mr-4" /> Back to All Stories
       </Button>
@@ -82,6 +111,318 @@ const { Content } = await render(post);
           </Button>
         )
       }
-    </div>
-  </div>
+    </nav>
+  </article>
 </MainLayout>
+
+<style>
+  .post-wrap {
+    position: relative;
+    z-index: 3;
+  }
+
+  .post-header {
+    text-align: center;
+    padding: 4rem 1rem 1.5rem;
+  }
+
+  .post-kicker {
+    display: inline-block;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: var(--planet-accent, #e2d1c3);
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+  }
+
+  .post-title {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-weight: 400;
+    font-size: clamp(2.25rem, 5vw, 3.75rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    margin: 0 auto 1.25rem;
+    max-width: 22ch;
+    color: #f5f1ea;
+    text-wrap: balance;
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.75rem;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 0.82rem;
+    letter-spacing: 0.15em;
+    color: rgba(245, 241, 234, 0.68);
+    flex-wrap: wrap;
+  }
+
+  .post-byline {
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    font-size: 0.72rem;
+  }
+  .post-byline em {
+    font-style: italic;
+    letter-spacing: 0.05em;
+    text-transform: none;
+    font-size: 0.9rem;
+    color: var(--planet-accent, #e2d1c3);
+  }
+
+  .post-meta-dot {
+    opacity: 0.5;
+  }
+
+  .post-date {
+    font-style: italic;
+    letter-spacing: 0.05em;
+    font-size: 0.92rem;
+    color: rgba(245, 241, 234, 0.8);
+  }
+
+  .post-rule,
+  .post-footer-rule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.75rem auto 0;
+    max-width: 18rem;
+    color: var(--planet-accent, #e2d1c3);
+    opacity: 0.6;
+  }
+  .post-footer-rule {
+    margin: 3rem auto 1rem;
+    max-width: 14rem;
+  }
+  .post-rule::before,
+  .post-rule::after,
+  .post-footer-rule::before,
+  .post-footer-rule::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  }
+  .post-rule-ornament,
+  .post-footer-rule span {
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+  }
+
+  .post-figure {
+    max-width: 44rem;
+    margin: 2rem auto 0;
+    padding: 0;
+  }
+  .post-figure :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    filter: grayscale(0.25) saturate(0.9);
+  }
+  .post-figure figcaption {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-style: italic;
+    font-size: 0.8rem;
+    color: rgba(245, 241, 234, 0.55);
+    text-align: center;
+    margin-top: 0.6rem;
+    letter-spacing: 0.04em;
+  }
+
+  .blog-body-frame {
+    position: relative;
+    max-width: 44rem;
+    margin: 2rem auto 2.5rem;
+    padding: 2.5rem clamp(1.5rem, 4vw, 3rem) 2.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 2px;
+    background: rgba(12, 12, 16, 0.38);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 24px 48px -28px rgba(0, 0, 0, 0.6);
+    text-align: left;
+  }
+
+  .blog-body-frame::before,
+  .blog-body-frame::after {
+    content: "";
+    position: absolute;
+    left: clamp(1.5rem, 4vw, 3rem);
+    right: clamp(1.5rem, 4vw, 3rem);
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.18),
+      transparent
+    );
+  }
+  .blog-body-frame::before {
+    top: 0.75rem;
+  }
+  .blog-body-frame::after {
+    bottom: 0.75rem;
+  }
+
+  html.light .blog-body-frame {
+    background: rgba(255, 255, 255, 0.55);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .blog-body {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    line-height: 1.85;
+    font-size: clamp(1rem, 1.15vw, 1.1rem);
+    color: rgba(245, 241, 234, 0.88);
+  }
+
+  .blog-body :global(p) {
+    margin: 0 0 1.25em;
+  }
+
+  .blog-body :global(p:first-of-type)::first-letter {
+    float: left;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 4.2em;
+    line-height: 0.88;
+    padding: 0.08em 0.12em 0 0;
+    font-weight: 400;
+    color: var(--planet-accent, #e2d1c3);
+    font-style: normal;
+  }
+
+  .blog-body :global(h2) {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-weight: 400;
+    font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+    letter-spacing: -0.005em;
+    margin: 2.5rem 0 1rem;
+    color: #f5f1ea;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .blog-body :global(h3) {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-weight: 400;
+    font-style: italic;
+    font-size: 1.25rem;
+    margin: 2rem 0 0.75rem;
+    color: var(--planet-accent, #e2d1c3);
+  }
+
+  .blog-body :global(blockquote) {
+    border-left: 2px solid var(--planet-accent, #e2d1c3);
+    padding: 0.25rem 0 0.25rem 1.25rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: rgba(245, 241, 234, 0.72);
+    font-size: 1.1em;
+  }
+
+  .blog-body :global(hr) {
+    border: 0;
+    text-align: center;
+    margin: 2.5rem 0;
+    color: rgba(245, 241, 234, 0.4);
+  }
+  .blog-body :global(hr)::after {
+    content: "\2042";
+    font-size: 1.2rem;
+    letter-spacing: 0.5em;
+  }
+
+  .blog-body :global(code) {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+
+  .blog-body :global(pre) {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1rem 1.2rem;
+    border-radius: 3px;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    font-size: 0.9em;
+    line-height: 1.6;
+  }
+
+  .blog-body :global(pre code) {
+    background: transparent;
+    padding: 0;
+  }
+
+  .blog-body :global(a) {
+    color: var(--planet-accent, #e2d1c3);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  .post-tags {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 2rem auto 0;
+    max-width: 44rem;
+  }
+
+  .post-tags-label {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 0.7rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    color: rgba(245, 241, 234, 0.5);
+    margin-right: 0.5rem;
+  }
+
+  .post-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem auto 3rem;
+  }
+
+  @media (min-width: 640px) {
+    .post-nav {
+      flex-direction: row;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .post-header {
+      padding: 3rem 0.5rem 1rem;
+    }
+    .blog-body-frame {
+      padding: 1.75rem 1.25rem;
+    }
+    .blog-body :global(p:first-of-type)::first-letter {
+      font-size: 3.4em;
+    }
+  }
+</style>

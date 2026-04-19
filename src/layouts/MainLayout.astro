@@ -12,27 +12,31 @@ import siteConfig from "../site.config";
 type LayoutProps = {
     pageTitle: string;
     activePage: string;
+    pageKind?: string;
 };
-const { pageTitle, activePage } = Astro.props as LayoutProps;
+const { pageTitle, activePage, pageKind } = Astro.props as LayoutProps;
 
 const planet = getTodayPlanet();
 
 const pathname = Astro.url.pathname;
-const dataPage = activePage === "404"
-    ? "404"
-    : pathname === "/" || pathname === ""
-      ? "home"
-      : pathname.startsWith("/blog")
-        ? "blog"
-        : pathname.startsWith("/tags")
-          ? "tags"
-          : pathname.startsWith("/about")
-            ? "about"
-            : pathname.startsWith("/contact")
-              ? "contact"
-              : "home";
+const dataPage = pageKind
+    ? pageKind
+    : activePage === "404"
+      ? "404"
+      : pathname === "/" || pathname === ""
+        ? "home"
+        : pathname.startsWith("/blog")
+          ? "blog"
+          : pathname.startsWith("/tags")
+            ? "tags"
+            : pathname.startsWith("/about")
+              ? "about"
+              : pathname.startsWith("/contact")
+                ? "contact"
+                : "home";
 
 const themeStyle = `--planet-theme:${planet.themeColor};--planet-accent:${planet.accentColor};`;
+const showPlanet = dataPage === "home";
 ---
 
 <!doctype html>
@@ -66,7 +70,7 @@ const themeStyle = `--planet-theme:${planet.themeColor};--planet-accent:${planet
             href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css"
             crossorigin="anonymous"
         />
-        <link rel="preload" as="image" href={planet.colorMap} />
+        {showPlanet && <link rel="preload" as="image" href={planet.colorMap} />}
         <link
             rel="alternate"
             type="application/rss+xml"
@@ -77,11 +81,14 @@ const themeStyle = `--planet-theme:${planet.themeColor};--planet-accent:${planet
         <ClientRouter />
     </head>
     <body>
-        <PlanetStage planet={planet} />
+        {showPlanet && <PlanetStage planet={planet} />}
         <main class="w-full mx-auto min-h-screen">
             <Nav activePage={activePage} />
             <slot />
             <Footer />
         </main>
+        <script>
+            import "../scripts/planet-stage";
+        </script>
     </body>
 </html>

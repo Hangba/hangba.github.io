@@ -14,6 +14,7 @@ export type Link = {
 export type Hero = {
     eyebrowText?: string;
     title?: string;
+    titleLines?: string[];
     text?: string;
     image?: Image;
     actions?: Link[];
@@ -64,10 +65,6 @@ const siteConfig: SiteConfig = {
     website: 'https://hangba.github.io',
     title: 'HangbaSteve的个人博客',
     description: 'HangbaSteve的个人空间',
-    image: {
-        src: '/space-ahead-preview.jpeg',
-        alt: 'Space Ahead ✨ - A minimal space-inspired personal blog template, created by Siddhesh Thadeshwar.'
-    },
     headerNavLinks: [
         {
             text: 'Home',
@@ -108,23 +105,10 @@ const siteConfig: SiteConfig = {
             href: withBase('/sitemap-index.xml')
         }
     ],
-    socialLinks: [
-        {
-            text: 'Dribbble',
-            href: 'https://dribbble.com/'
-        },
-        {
-            text: 'Instagram',
-            href: 'https://instagram.com/'
-        },
-        {
-            text: 'X/Twitter',
-            href: 'https://twitter.com/'
-        }
-    ],
     hero: {
         eyebrowText: '欢迎来到',
-        title: 'HangbaSteve的个人博客',
+        title: 'HangbaSteve的Blog',
+        titleLines: ['HangbaSteve', 'Blog'],
         text: "这是我的数字花园，记录技术与生活。",
         image: {
             src: '/assets/images/pixeltrue-space-discovery.svg',

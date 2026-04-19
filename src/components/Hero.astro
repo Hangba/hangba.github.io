@@ -1,30 +1,34 @@
 ---
 import siteConfig from "../site.config";
-import { withBase } from "../utils/helpers";
 import { getTodayPlanet } from "../data/planets";
 const planet = getTodayPlanet();
+const titleLines = siteConfig.hero?.titleLines;
 ---
 
 <section class="hero" data-reveal-root>
     {
-        siteConfig.hero?.eyebrowText && (
-            <span class="hero-eyebrow" data-reveal style="--reveal-delay:0ms">
-                {siteConfig.hero?.eyebrowText}
-            </span>
+        titleLines && titleLines.length > 0 ? (
+            <h1 class="hero-title hero-title--stacked" data-reveal style="--reveal-delay:80ms">
+                {titleLines.map((line, i) => (
+                    <>
+                        {i > 0 && (
+                            <span class="title-dash" aria-hidden="true">—</span>
+                        )}
+                        <span class="title-line">{line}</span>
+                    </>
+                ))}
+            </h1>
+        ) : (
+            <h1 class="hero-title" data-reveal style="--reveal-delay:80ms">
+                {siteConfig.hero?.title}
+            </h1>
         )
     }
-    <h1 class="hero-title" data-reveal style="--reveal-delay:80ms">
-        {siteConfig.hero?.title}
-    </h1>
-    <p class="hero-sub" data-reveal style="--reveal-delay:240ms">
-        {siteConfig.hero?.text}
-    </p>
-    <div class="hero-actions" data-reveal style="--reveal-delay:380ms">
-        <a class="hero-cta" href={withBase("/blog")}>
-            <span>Blog</span>
-            <span aria-hidden="true">→</span>
-        </a>
-        <a class="hero-link" href="#recent-stories">↓ scroll</a>
+    <div class="hero-sub-frame" data-reveal style="--reveal-delay:240ms">
+        <span class="hero-sub-label">Intro</span>
+        <p class="hero-sub">
+            {siteConfig.hero?.text}
+        </p>
     </div>
     <div class="planet-cycler" data-reveal style="--reveal-delay:520ms">
         <span class="planet-cycler-label">
@@ -83,29 +87,16 @@ const planet = getTodayPlanet();
         position: relative;
         z-index: 3;
         min-height: 100vh;
-        padding: 1vh 6vw 8vh;
+        padding: 14vh 0 8vh;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 1.25rem;
-        max-width: 1280px;
-        margin: 0 auto;
-        text-align: center;
-    }
-
-    .hero-eyebrow {
-        display: inline-block;
-        width: fit-content;
-        font-size: 0.75rem;
-        letter-spacing: 0.45em;
-        text-transform: uppercase;
-        padding: 0.4rem 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 999px;
-        background: rgba(0, 0, 0, 0.25);
-        backdrop-filter: blur(12px);
-        color: var(--planet-accent, #e2d1c3);
+        justify-content: center;
+        align-items: flex-end;
+        gap: 1.75rem;
+        width: min(540px, 50vw);
+        margin-left: auto;
+        margin-right: 10vw;
+        text-align: right;
     }
 
     .hero-title {
@@ -113,59 +104,89 @@ const planet = getTodayPlanet();
         line-height: 0.95;
         letter-spacing: -0.02em;
         font-weight: 300;
-        max-width: 18ch;
         margin: 0;
         color: #f5f1ea;
         text-shadow: 0 4px 40px rgba(0, 0, 0, 0.35);
     }
 
-    .hero-sub {
-        max-width: 36ch;
-        font-size: clamp(1rem, 1.4vw, 1.25rem);
-        line-height: 1.6;
-        color: rgba(245, 241, 234, 0.72);
-        margin: 0;
-        letter-spacing: 0.04em;
-    }
-
-    .hero-actions {
+    .hero-title--stacked {
         display: flex;
-        gap: 1.5rem;
-        align-items: center;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-top: 1rem;
+        flex-direction: column;
+        align-items: flex-end;
+        line-height: 0.9;
+        gap: 0.1em;
     }
 
-    .hero-cta {
-        display: inline-flex;
-        gap: 0.6rem;
-        align-items: center;
-        padding: 0.85rem 1.6rem;
-        border-radius: 999px;
-        background: var(--planet-accent, #e2d1c3);
-        color: #0a0a0a;
-        font-size: 0.95rem;
-        letter-spacing: 0.08em;
-        text-decoration: none;
-        transition:
-            transform 0.3s ease,
-            box-shadow 0.3s ease;
-    }
-    .hero-cta:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 32px rgba(226, 209, 195, 0.25);
+    .title-line {
+        display: block;
     }
 
-    .hero-link {
-        font-size: 0.8rem;
-        letter-spacing: 0.4em;
-        opacity: 0.5;
-        text-decoration: none;
-        color: inherit;
+    .title-dash {
+        display: block;
+        font-size: 0.55em;
+        letter-spacing: 0.1em;
+        opacity: 0.55;
+        line-height: 1;
+        margin: 0.15em 0;
     }
-    .hero-link:hover {
-        opacity: 1;
+
+    .hero-sub-frame {
+        position: relative;
+        max-width: 38ch;
+        margin-left: auto;
+        padding: 1.6rem 1.9rem 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 2px;
+        background: rgba(12, 12, 16, 0.35);
+        backdrop-filter: blur(20px) saturate(140%);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+        box-shadow:
+            0 1px 0 rgba(255, 255, 255, 0.06) inset,
+            0 18px 40px -20px rgba(0, 0, 0, 0.55);
+        text-align: left;
+    }
+
+    .hero-sub-frame::before,
+    .hero-sub-frame::after {
+        content: "";
+        position: absolute;
+        left: 1.9rem;
+        right: 1.9rem;
+        height: 1px;
+        background: linear-gradient(
+            to right,
+            transparent,
+            rgba(255, 255, 255, 0.18),
+            transparent
+        );
+    }
+    .hero-sub-frame::before {
+        top: 0.55rem;
+    }
+    .hero-sub-frame::after {
+        bottom: 0.55rem;
+    }
+
+    .hero-sub-label {
+        display: block;
+        font-size: 0.68rem;
+        letter-spacing: 0.5em;
+        text-transform: uppercase;
+        color: var(--planet-accent, #e2d1c3);
+        margin-bottom: 0.9rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        font-weight: 400;
+    }
+
+    .hero-sub {
+        font-family: var(--font-serif, "New Computer Modern Roman", serif);
+        font-size: clamp(0.95rem, 1.15vw, 1.1rem);
+        line-height: 1.75;
+        color: rgba(245, 241, 234, 0.82);
+        margin: 0;
+        letter-spacing: 0.02em;
+        font-style: italic;
     }
 
     .planet-cycler {
@@ -173,7 +194,8 @@ const planet = getTodayPlanet();
         align-items: center;
         gap: 0.9rem;
         padding: 0.5rem 0.5rem 0.5rem 1rem;
-        margin-top: 1.5rem;
+        margin-top: 1rem;
+        margin-left: auto;
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 999px;
         background: rgba(0, 0, 0, 0.3);
@@ -215,14 +237,27 @@ const planet = getTodayPlanet();
         color: #0a0a0a;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
         .hero {
-            padding: 1vh 5vw 6vh;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            align-items: center;
+            text-align: center;
+            padding: 36vh 5vw 6vh;
             min-height: 100svh;
             justify-content: flex-start;
         }
-        .hero-title {
-            max-width: 14ch;
+        .hero-title--stacked {
+            align-items: center;
+        }
+        .hero-sub-frame {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .planet-cycler {
+            margin-left: auto;
+            margin-right: auto;
         }
     }
 </style>
