@@ -109,7 +109,7 @@ const siteConfig: SiteConfig = {
         eyebrowText: '欢迎来到',
         title: 'HangbaSteve的Blog',
         titleLines: ['HangbaSteve', 'Blog'],
-        text: "这是我的数字花园，记录技术与生活。",
+        text: "This is a cosmic space.",
         image: {
             src: '/assets/images/pixeltrue-space-discovery.svg',
             alt: 'A person sitting at a desk in front of a computer'
@@ -123,33 +123,29 @@ const siteConfig: SiteConfig = {
     },
     about: {
         title: 'About',
-        text: 'Space Ahead is a blog about space exploration and travel. It is written by Astro-naut Sid, a space explorer at Beyond Earth. Sid is known for his love of adventure and his insatiable curiosity about the universe. He has explored countless planets, discovered new life forms, and made friends with aliens along the way. 🚀',
+        text: 'An undergraduate student majoring in Space Science and Technology at Harbin Institute of Technology, Shenzhen.',
     },
     contactInfo: {
         title: 'Contact',
         text: "Hi! Whether you have a question, a suggestion, or just want to share your thoughts, I'm all ears. Feel free to get in touch through any of the methods below:",
         email: {
             text: "Drop me an email and I’ll do my best to respond as soon as possible.",
-            href: "mailto:example@example.com",
-            email: "example@example.com"
+            href: "mailto:hangbamaybe@gmail.com",
+            email: "hangbamaybe@gmail.com"
         },
         socialProfiles: [
             {
-                text: "LinkedIn",
-                href: "https://www.linkedin.com/"
-            },
-            {
-                text: "Peerlist",
-                href: "https://www.peerlist.io/"
+                text: "Bilibili",
+                href: "https://space.bilibili.com/38787868"
             },
             {
                 text: "GitHub",
-                href: "https://github.com/"
+                href: "https://github.com/hangba"
             }
         ]
     },
     blog: {
-        description: "Read about my space adventures, explorations and the aliens I've met on my journeys."
+        description: "Explore the unknown."
     },
     postsPerPage: 2,
     recentPostLimit: 3

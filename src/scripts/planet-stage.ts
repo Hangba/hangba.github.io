@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { Planet } from "../data/planets";
+import { planets, type Planet } from "../data/planets";
 
 type StageState = {
     raf: number;
@@ -315,12 +315,11 @@ function switchPlanet(nextPlanet: Planet) {
     s.sun.intensity = nextPlanet.sunIntensity;
 
     // CSS theme variables + persistent data-planet attribute
-    const root = document.documentElement;
-    root.style.setProperty("--planet-theme", nextPlanet.themeColor);
-    root.style.setProperty("--planet-accent", nextPlanet.accentColor);
+    applyPlanetAttributes(nextPlanet);
     s.stageEl.dataset.planet = JSON.stringify(nextPlanet);
     try {
-        sessionStorage.setItem("planet:current", JSON.stringify(nextPlanet));
+        sessionStorage.setItem("planet:currentId", nextPlanet.id);
+        sessionStorage.removeItem("planet:current");
     } catch {
         /* ignore */
     }
@@ -487,29 +486,69 @@ function refreshScrollOnNav() {
     if (fn) fn();
 }
 
+function applyPlanetAttributes(planet: Planet) {
+    const root = document.documentElement;
+    root.style.setProperty("--planet-theme", planet.themeColor);
+    root.style.setProperty("--planet-accent", planet.accentColor);
+    if (planet.postTheme === "texture") {
+        root.style.setProperty("--planet-texture", `url('${planet.colorMap}')`);
+    } else {
+        root.style.removeProperty("--planet-texture");
+    }
+    if (planet.postTheme) {
+        root.dataset.postTheme = planet.postTheme;
+    } else {
+        delete root.dataset.postTheme;
+    }
+    root.dataset.planetId = planet.id;
+}
+
 function reapplyThemeFromStage() {
     const stage = document.getElementById("planet-stage");
-    const root = document.documentElement;
     let planet: Planet | null = null;
     if (stage) {
         planet = readPlanet(stage);
     }
     if (!planet) {
         try {
-            const raw = sessionStorage.getItem("planet:current");
-            if (raw) planet = JSON.parse(raw) as Planet;
+            const id = sessionStorage.getItem("planet:currentId");
+            if (id) {
+                planet = planets.find((p) => p.id === id) ?? null;
+            }
         } catch {
             /* ignore */
         }
     }
     if (!planet) return;
-    root.style.setProperty("--planet-theme", planet.themeColor);
-    root.style.setProperty("--planet-accent", planet.accentColor);
+    applyPlanetAttributes(planet);
+}
+
+function destroyStage() {
+    if (!state) return;
+    const s = state;
+    cancelAnimationFrame(s.raf);
+    try {
+        if (s.cloud) disposeMesh(s.cloud);
+        if (s.ring) disposeMesh(s.ring);
+        s.sphereGeometry.dispose();
+        if (s.material.map) s.material.map.dispose();
+        s.material.dispose();
+        s.renderer.dispose();
+    } catch {
+        /* ignore */
+    }
+    state = null;
 }
 
 function init() {
     const stage = document.getElementById("planet-stage");
-    if (!stage) return;
+    if (!stage) {
+        if (state) destroyStage();
+        return;
+    }
+    if (state && state.stageEl !== stage) {
+        destroyStage();
+    }
     const planet = readPlanet(stage);
     if (!planet) return;
 
@@ -537,21 +576,33 @@ document.addEventListener("astro:before-preparation", (event) => {
     root.classList.remove("is-revealed");
     root.classList.add("is-navigating");
     root.style.setProperty("--planet-progress", "0");
+
+    if (targetPage !== "home") {
+        const stage = document.getElementById("planet-stage");
+        if (stage) stage.style.display = "none";
+    }
     root.dataset.page = targetPage;
 
     e.loader = async () => {
         await Promise.all([
-            new Promise((r) => setTimeout(r, NAVIGATE_DURATION)),
+            new Promise((r) => setTimeout(r, 180)),
             original(),
         ]);
     };
 });
 
 document.addEventListener("astro:after-swap", () => {
-    document.documentElement.classList.remove("is-navigating");
+    const root = document.documentElement;
+    root.classList.remove("is-navigating");
+    root.classList.add("is-entering");
     window.scrollTo(0, 0);
     reapplyThemeFromStage();
     refreshScrollOnNav();
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            root.classList.remove("is-entering");
+        });
+    });
 });
 
 document.addEventListener("astro:page-load", () => {

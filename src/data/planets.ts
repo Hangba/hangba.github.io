@@ -12,6 +12,10 @@ export type Planet = {
     sunIntensity: number;
     roughness?: number;
     tiltDeg?: number;
+    // Blog-post body theme when this planet is active:
+    //   "paper"   — warm cream background, dark serif text (Venus/Saturn/Jupiter)
+    //   "texture" — tiled sphere colorMap background, white text on blur (Moon/Mercury)
+    postTheme?: "paper" | "texture";
     // Earth-style cloud overlay (second sphere, alpha-mapped)
     cloudMap?: string;
     cloudMapHQ?: string;
@@ -35,6 +39,7 @@ export const planets: Planet[] = [
         ambientLight: 0.05,
         sunIntensity: 2.4,
         tiltDeg: 8.6,
+        postTheme: "texture",
     },
     {
         id: "mercury",
@@ -47,6 +52,7 @@ export const planets: Planet[] = [
         ambientLight: 0.04,
         sunIntensity: 2.5,
         tiltDeg: 2,
+        postTheme: "texture",
     },
     {
         id: "venus",
@@ -59,23 +65,7 @@ export const planets: Planet[] = [
         ambientLight: 0.28,
         sunIntensity: 2.2,
         tiltDeg: 3,
-    },
-    {
-        id: "earth",
-        name: "地球",
-        colorMap: withBase("/textures/earth_2k.jpg"),
-        colorMapHQ: withBase("/textures/earth_8k.jpg"),
-        themeColor: "#5891c8",
-        accentColor: "#8fc3e8",
-        rotationSpeed: 0.0002,
-        ambientLight: 0.14,
-        sunIntensity: 2.4,
-        roughness: 0.85,
-        tiltDeg: 23.4,
-        cloudMap: withBase("/textures/earth_cloud_2k.jpg"),
-        cloudMapHQ: withBase("/textures/earth_cloud_8k.jpg"),
-        cloudOpacity: 0.85,
-        cloudRotationSpeed: 0.00028,
+        postTheme: "paper",
     },
     {
         id: "mars",
@@ -100,6 +90,7 @@ export const planets: Planet[] = [
         ambientLight: 0.18,
         sunIntensity: 2.2,
         tiltDeg: 3,
+        postTheme: "paper",
     },
     {
         id: "saturn",
@@ -112,6 +103,7 @@ export const planets: Planet[] = [
         ambientLight: 0.18,
         sunIntensity: 2.0,
         tiltDeg: 26.7,
+        postTheme: "paper",
         ringMap: withBase("/textures/saturn_ring_alpha_2k.png"),
         ringInnerRadius: 1.24,
         ringOuterRadius: 2.3,

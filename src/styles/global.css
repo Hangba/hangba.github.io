@@ -63,6 +63,57 @@ html.light body {
   @apply bg-space-sand bg-cover bg-no-repeat text-black;
 }
 
+/* Paper theme on all non-home pages: warm cream full-page background */
+html.dark[data-post-theme="paper"]:not([data-page="home"]) body {
+  background-image: linear-gradient(180deg, #ede2c7 0%, #d0bd93 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-attachment: fixed;
+  color: #2d2316;
+}
+html.dark[data-post-theme="paper"]:not([data-page="home"]) a:not(.button-link) {
+  color: #6b4a18;
+}
+html.dark[data-post-theme="paper"]:not([data-page="home"]) a:not(.button-link):hover {
+  color: #8b5a20 !important;
+}
+html.dark[data-post-theme="paper"]:not([data-page="home"]) a.button-link:not(:disabled),
+html.dark[data-post-theme="paper"]:not([data-page="home"]) button.button-link:not(:disabled) {
+  border-color: rgba(70, 50, 20, 0.35);
+  color: #3d2810;
+  background: rgba(255, 253, 245, 0.3);
+}
+html.dark[data-post-theme="paper"]:not([data-page="home"]) a.button-link:not(:disabled):hover,
+html.dark[data-post-theme="paper"]:not([data-page="home"]) button.button-link:not(:disabled):hover {
+  border-color: #8b5a20;
+  color: #8b5a20;
+  background: rgba(255, 253, 245, 0.55);
+}
+
+/* Slate theme on all non-home pages (Moon / Mercury): solid dark-gray background */
+html.dark[data-post-theme="texture"]:not([data-page="home"]) body {
+  background: #2a2a2e;
+  background-image: none;
+  color: rgba(245, 245, 250, 0.95);
+}
+html.dark[data-post-theme="texture"]:not([data-page="home"]) a:not(.button-link) {
+  color: #ffffff;
+}
+html.dark[data-post-theme="texture"]:not([data-page="home"]) a.button-link:not(:disabled),
+html.dark[data-post-theme="texture"]:not([data-page="home"]) button.button-link:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+html.dark[data-post-theme="texture"]:not([data-page="home"]) a.button-link:not(:disabled):hover,
+html.dark[data-post-theme="texture"]:not([data-page="home"]) button.button-link:not(:disabled):hover {
+  border-color: #ffffff;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
 /* semantic elements */
 header {
   @apply sticky top-4 z-20 mr-auto ml-auto flex w-full flex-col items-center justify-center px-0 py-0 text-base;

@@ -35,8 +35,12 @@ const dataPage = pageKind
                 ? "contact"
                 : "home";
 
-const themeStyle = `--planet-theme:${planet.themeColor};--planet-accent:${planet.accentColor};`;
+const textureStyle = planet.postTheme === "texture"
+    ? `--planet-texture:url('${planet.colorMap}');`
+    : "";
+const themeStyle = `--planet-theme:${planet.themeColor};--planet-accent:${planet.accentColor};${textureStyle}`;
 const showPlanet = dataPage === "home";
+const postTheme = planet.postTheme ?? undefined;
 ---
 
 <!doctype html>
@@ -44,6 +48,8 @@ const showPlanet = dataPage === "home";
     lang="en"
     class="antialiased break-words dark"
     data-page={dataPage}
+    data-planet-id={planet.id}
+    data-post-theme={postTheme}
     style={themeStyle}
 >
     <head>

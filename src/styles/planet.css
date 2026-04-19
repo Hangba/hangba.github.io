@@ -14,9 +14,6 @@
     will-change: transform, opacity;
     transform: translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0)
         scale(var(--p-s, 1));
-    transition:
-        transform 900ms cubic-bezier(0.65, 0, 0.35, 1),
-        opacity 600ms ease;
 }
 
 #planet-stage canvas {
@@ -118,20 +115,25 @@ html[data-page="tags"]:not(.is-navigating) #planet-stage {
 }
 
 /* ----------------------------------------------------------------------------
- * Navigation transition: the moon glides from current page's pose to the
- * target page's pose. Scroll-driven rules above bypass during `.is-navigating`,
- * so the base #planet-stage rule (with its 900ms transition) takes over.
+ * Page transition — horizontal slide on navigation
+ * Old page slides out to the left, new page slides in from the right.
  * -------------------------------------------------------------------------- */
-
-html.is-navigating main {
-    opacity: 0;
-    transform: translateY(6px);
-}
 
 main {
     transition:
-        opacity 500ms ease,
-        transform 600ms ease;
+        opacity 260ms ease,
+        transform 320ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+html.is-navigating main {
+    opacity: 0;
+    transform: translateX(-32px);
+}
+
+html.is-entering main {
+    opacity: 0;
+    transform: translateX(32px);
+    transition: none;
 }
 
 /* ----------------------------------------------------------------------------

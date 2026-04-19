@@ -22,7 +22,7 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
 
 <MainLayout activePage="blog" pageTitle={siteConfig.title + " | Blog Archive"}>
   <div class="page-content landing-content magazine-wrap" data-reveal-root>
-    <header class="magazine-header" data-reveal style="--reveal-delay:0ms">
+    <div class="magazine-header" data-reveal style="--reveal-delay:0ms">
       <span class="magazine-kicker">The Journal &mdash; Vol. {page.currentPage}</span>
       <h1 class="magazine-masthead">Blog</h1>
       {
@@ -33,7 +33,7 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
       <div class="magazine-rule" aria-hidden="true">
         <span class="magazine-rule-ornament">&#10070;</span>
       </div>
-    </header>
+    </div>
 
     <div class="magazine-frame" data-reveal style="--reveal-delay:200ms">
       {
@@ -308,6 +308,120 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
     letter-spacing: 0.8em;
     font-size: 0.85rem;
+  }
+
+  /* Paper theme — Venus / Saturn / Jupiter: cream listing */
+  :global(html[data-post-theme="paper"]) .magazine-kicker {
+    color: #6b4a18;
+    opacity: 1;
+  }
+  :global(html[data-post-theme="paper"]) .magazine-masthead {
+    color: #1a120a;
+  }
+  :global(html[data-post-theme="paper"]) .magazine-dek {
+    color: rgba(50, 35, 15, 0.78);
+  }
+  :global(html[data-post-theme="paper"]) .magazine-rule {
+    color: #8b5a20;
+    opacity: 0.8;
+  }
+  :global(html[data-post-theme="paper"]) .magazine-rule::before,
+  :global(html[data-post-theme="paper"]) .magazine-rule::after {
+    background: linear-gradient(to right, transparent, rgba(70,50,20,0.3), transparent);
+  }
+  :global(html[data-post-theme="paper"]) .magazine-frame {
+    background: rgba(234, 221, 194, 0.9);
+    border-color: rgba(70, 50, 20, 0.18);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.5) inset,
+      0 24px 48px -28px rgba(40, 25, 0, 0.25);
+  }
+  :global(html[data-post-theme="paper"]) .magazine-frame::before,
+  :global(html[data-post-theme="paper"]) .magazine-frame::after {
+    background: linear-gradient(to right, transparent, rgba(70,50,20,0.22), transparent);
+  }
+  :global(html[data-post-theme="paper"]) .magazine-entry-meta {
+    color: rgba(70, 50, 20, 0.75);
+  }
+  :global(html[data-post-theme="paper"]) .magazine-number {
+    color: #8b5a20;
+  }
+  :global(html[data-post-theme="paper"]) .magazine-title {
+    color: #1a120a;
+  }
+  :global(html[data-post-theme="paper"]) .magazine-link:hover .magazine-title {
+    color: #8b5a20;
+  }
+  :global(html[data-post-theme="paper"]) .magazine-excerpt {
+    color: rgba(50, 35, 15, 0.82);
+  }
+  :global(html[data-post-theme="paper"]) .magazine-more {
+    color: #8b5a20;
+    opacity: 1;
+  }
+  :global(html[data-post-theme="paper"]) .magazine-figure {
+    border-color: rgba(70, 50, 20, 0.2);
+  }
+  :global(html[data-post-theme="paper"]) .magazine-sep {
+    color: rgba(70, 50, 20, 0.4);
+  }
+
+  /* Slate theme — Moon / Mercury: dark gray solid, white text on blur frame */
+  :global(html[data-post-theme="texture"]) .magazine-kicker {
+    color: rgba(255, 255, 255, 0.78);
+    opacity: 1;
+  }
+  :global(html[data-post-theme="texture"]) .magazine-masthead {
+    color: #ffffff;
+  }
+  :global(html[data-post-theme="texture"]) .magazine-dek {
+    color: rgba(255, 255, 255, 0.78);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-rule {
+    color: rgba(255, 255, 255, 0.72);
+    opacity: 1;
+  }
+  :global(html[data-post-theme="texture"]) .magazine-rule::before,
+  :global(html[data-post-theme="texture"]) .magazine-rule::after {
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.35), transparent);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-frame {
+    background: rgba(18, 18, 24, 0.45);
+    border-color: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(32px) saturate(125%);
+    -webkit-backdrop-filter: blur(32px) saturate(125%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.1) inset,
+      0 30px 56px -32px rgba(0, 0, 0, 0.85);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-frame::before,
+  :global(html[data-post-theme="texture"]) .magazine-frame::after {
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.28), transparent);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-entry-meta {
+    color: rgba(255, 255, 255, 0.65);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-number {
+    color: rgba(255, 255, 255, 0.95);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-title {
+    color: #ffffff;
+  }
+  :global(html[data-post-theme="texture"]) .magazine-link:hover .magazine-title {
+    color: rgba(255, 255, 255, 0.82);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-excerpt {
+    color: rgba(255, 255, 255, 0.88);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-more {
+    color: rgba(255, 255, 255, 0.95);
+    opacity: 1;
+  }
+  :global(html[data-post-theme="texture"]) .magazine-figure {
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-sep {
+    color: rgba(255, 255, 255, 0.4);
   }
 
   @media (max-width: 640px) {

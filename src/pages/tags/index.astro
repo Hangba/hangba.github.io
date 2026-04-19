@@ -22,27 +22,174 @@ const tags = getAllTags(posts).sort((tagA, tagB) => {
   activePage="tags"
   pageTitle={siteConfig.title + " | " + "Tags Index"}
 >
-  <div class="page-content landing-content" data-reveal-root>
-    <h1 class="sigmar-ff text-balance" data-reveal style="--reveal-delay:0ms">Tags</h1>
-    <p class="kanit-regular" data-reveal style="--reveal-delay:120ms">Select a tag to view related posts.</p>
-    <div class="flex flex-wrap items-center justify-center gap-4" data-reveal style="--reveal-delay:240ms">
-      {
-        tags.map((tag) => {
-          const postCount = getPostsByTag(posts, tag.id).length;
-          return (
-            <Button href={`${withBase("/tags/" + tag.id)}`} class="px-4! m-2">
-              {tag.name} ({postCount})
-            </Button>
-          );
-        })
-      }
+  <div class="page-content landing-content magazine-wrap" data-reveal-root>
+    <div class="magazine-header" data-reveal style="--reveal-delay:0ms">
+      <span class="magazine-kicker">The Journal &mdash; Tags</span>
+      <h1 class="magazine-masthead">Tags</h1>
+      <p class="magazine-dek">Select a tag to view related posts.</p>
+      <div class="magazine-rule" aria-hidden="true">
+        <span class="magazine-rule-ornament">&#10070;</span>
+      </div>
+    </div>
+
+    <div class="magazine-frame tag-frame text-left" data-reveal style="--reveal-delay:200ms">
+      <div class="tag-list">
+        {
+          tags.map((tag) => {
+            const postCount = getPostsByTag(posts, tag.id).length;
+            return (
+              <Button href={`${withBase("/tags/" + tag.id)}`} class="px-4! m-2">
+                {tag.name} ({postCount})
+              </Button>
+            );
+          })
+        }
+      </div>
     </div>
   </div>
 </MainLayout>
 
 <style>
-  .landing-content {
+  .magazine-wrap {
     position: relative;
     z-index: 3;
+  }
+
+  .magazine-header {
+    text-align: center;
+    padding: 4rem 1rem 2rem;
+  }
+
+  .magazine-kicker {
+    display: inline-block;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: var(--planet-accent, #e2d1c3);
+    margin-bottom: 1.25rem;
+    opacity: 0.9;
+  }
+
+  .magazine-masthead {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-weight: 300;
+    font-size: clamp(3.5rem, 8vw, 6.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0 0 1rem;
+    color: #f5f1ea;
+  }
+
+  .magazine-dek {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-style: italic;
+    font-size: clamp(1rem, 1.2vw, 1.15rem);
+    max-width: 34ch;
+    margin: 0 auto 1.75rem;
+    color: rgba(245, 241, 234, 0.72);
+    line-height: 1.6;
+  }
+
+  .magazine-rule {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem auto 0;
+    max-width: 20rem;
+    color: var(--planet-accent, #e2d1c3);
+    opacity: 0.65;
+  }
+  .magazine-rule::before,
+  .magazine-rule::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+  }
+  .magazine-rule-ornament {
+    font-size: 0.85rem;
+    letter-spacing: 0.3em;
+  }
+
+  .magazine-frame {
+    position: relative;
+    max-width: 44rem;
+    margin: 2rem auto 4rem;
+    padding: 2.5rem clamp(1.5rem, 4vw, 3rem);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 2px;
+    background: rgba(12, 12, 16, 0.38);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 24px 48px -28px rgba(0, 0, 0, 0.6);
+  }
+  .magazine-frame::before,
+  .magazine-frame::after {
+    content: "";
+    position: absolute;
+    left: clamp(1.5rem, 4vw, 3rem);
+    right: clamp(1.5rem, 4vw, 3rem);
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.18), transparent);
+  }
+  .magazine-frame::before { top: 0.75rem; }
+  .magazine-frame::after  { bottom: 0.75rem; }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  /* Paper theme (Venus / Saturn / Jupiter) */
+  :global(html[data-post-theme="paper"]) .magazine-kicker { color: #6b4a18; opacity: 1; }
+  :global(html[data-post-theme="paper"]) .magazine-masthead { color: #1a120a; }
+  :global(html[data-post-theme="paper"]) .magazine-dek { color: rgba(50, 35, 15, 0.78); }
+  :global(html[data-post-theme="paper"]) .magazine-rule { color: #8b5a20; opacity: 0.8; }
+  :global(html[data-post-theme="paper"]) .magazine-rule::before,
+  :global(html[data-post-theme="paper"]) .magazine-rule::after {
+    background: linear-gradient(to right, transparent, rgba(70,50,20,0.3), transparent);
+  }
+  :global(html[data-post-theme="paper"]) .magazine-frame {
+    background: rgba(234, 221, 194, 0.9);
+    border-color: rgba(70, 50, 20, 0.18);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.5) inset,
+      0 24px 48px -28px rgba(40, 25, 0, 0.25);
+  }
+  :global(html[data-post-theme="paper"]) .magazine-frame::before,
+  :global(html[data-post-theme="paper"]) .magazine-frame::after {
+    background: linear-gradient(to right, transparent, rgba(70,50,20,0.22), transparent);
+  }
+
+  /* Slate theme (Moon / Mercury) */
+  :global(html[data-post-theme="texture"]) .magazine-kicker { color: rgba(255,255,255,0.78); opacity: 1; }
+  :global(html[data-post-theme="texture"]) .magazine-masthead { color: #ffffff; }
+  :global(html[data-post-theme="texture"]) .magazine-dek { color: rgba(255,255,255,0.78); }
+  :global(html[data-post-theme="texture"]) .magazine-rule { color: rgba(255,255,255,0.72); opacity: 1; }
+  :global(html[data-post-theme="texture"]) .magazine-rule::before,
+  :global(html[data-post-theme="texture"]) .magazine-rule::after {
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.35), transparent);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-frame {
+    background: rgba(18, 18, 24, 0.45);
+    border-color: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(32px) saturate(125%);
+    -webkit-backdrop-filter: blur(32px) saturate(125%);
+  }
+  :global(html[data-post-theme="texture"]) .magazine-frame::before,
+  :global(html[data-post-theme="texture"]) .magazine-frame::after {
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.28), transparent);
   }
 </style>

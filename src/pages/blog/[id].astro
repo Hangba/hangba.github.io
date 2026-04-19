@@ -44,7 +44,7 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
 
 <MainLayout activePage="blog" pageKind="blog-post" pageTitle={siteConfig.title + " | " + title}>
   <article class="page-content landing-content post-wrap" data-reveal-root>
-    <header class="post-header">
+    <div class="post-header">
       <span class="post-kicker" data-reveal style="--reveal-delay:0ms">
         The Journal &mdash; Dispatch
       </span>
@@ -59,7 +59,7 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
       <div class="post-rule" aria-hidden="true" data-reveal style="--reveal-delay:200ms">
         <span class="post-rule-ornament">&#10070;</span>
       </div>
-    </header>
+    </div>
 
     {
       image && image.url && (
@@ -70,7 +70,7 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
       )
     }
 
-    <div class="blog-body-frame" data-reveal style="--reveal-delay:320ms">
+    <div class="blog-body-frame text-left" data-reveal style="--reveal-delay:320ms">
       <div class="blog-body">
         <Content />
       </div>
@@ -285,26 +285,198 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
     border-color: rgba(0, 0, 0, 0.08);
   }
 
+  /* Paper theme — Venus / Saturn: warm cream backdrop, dark serif body */
+  :global(html[data-post-theme="paper"]) .blog-body-frame {
+    background: rgba(234, 221, 194, 0.9);
+    border-color: rgba(70, 50, 20, 0.18);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.5) inset,
+      0 24px 48px -28px rgba(40, 25, 0, 0.25);
+  }
+  :global(html[data-post-theme="paper"]) .blog-body-frame::before,
+  :global(html[data-post-theme="paper"]) .blog-body-frame::after {
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(70, 50, 20, 0.22),
+      transparent
+    );
+  }
+  :global(html[data-post-theme="paper"]) .blog-body {
+    color: rgba(45, 35, 22, 0.92);
+  }
+  :global(html[data-post-theme="paper"]) .blog-body :global(h2) {
+    color: #2a1f10;
+    border-bottom-color: rgba(70, 50, 20, 0.22);
+  }
+  :global(html[data-post-theme="paper"]) .blog-body :global(h3) {
+    color: #6b5020;
+  }
+  :global(html[data-post-theme="paper"]) .blog-body :global(blockquote) {
+    border-left-color: #b58838;
+    color: rgba(65, 50, 25, 0.78);
+  }
+  :global(html[data-post-theme="paper"]) .blog-body :global(code) {
+    background: rgba(70, 50, 20, 0.1);
+    color: #3d2a10;
+  }
+  :global(html[data-post-theme="paper"]) .blog-body :global(pre) {
+    background: rgba(70, 50, 20, 0.08);
+    border-color: rgba(70, 50, 20, 0.15);
+    color: #2d2110;
+  }
+  :global(html[data-post-theme="paper"]) .blog-body :global(a) {
+    color: #8b5a20;
+    text-decoration-color: rgba(139, 90, 32, 0.5);
+  }
+
+  /* Paper theme — post header, meta, rules, tags */
+  :global(html[data-post-theme="paper"]) .post-kicker {
+    color: #6b4a18;
+    opacity: 0.95;
+  }
+  :global(html[data-post-theme="paper"]) .post-title {
+    color: #1a120a;
+    text-shadow: none;
+  }
+  :global(html[data-post-theme="paper"]) .post-byline {
+    color: rgba(60, 45, 20, 0.75);
+  }
+  :global(html[data-post-theme="paper"]) .post-byline em {
+    color: #8b5a20;
+  }
+  :global(html[data-post-theme="paper"]) .post-meta-dot {
+    color: rgba(60, 45, 20, 0.5);
+  }
+  :global(html[data-post-theme="paper"]) .post-date {
+    color: rgba(60, 45, 20, 0.88);
+  }
+  :global(html[data-post-theme="paper"]) .post-rule,
+  :global(html[data-post-theme="paper"]) .post-footer-rule {
+    color: #8b5a20;
+    opacity: 0.75;
+  }
+  :global(html[data-post-theme="paper"]) .post-rule::before,
+  :global(html[data-post-theme="paper"]) .post-rule::after,
+  :global(html[data-post-theme="paper"]) .post-footer-rule::before,
+  :global(html[data-post-theme="paper"]) .post-footer-rule::after {
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(70, 50, 20, 0.3),
+      transparent
+    );
+  }
+  :global(html[data-post-theme="paper"]) .post-figure :global(img) {
+    border-color: rgba(70, 50, 20, 0.2);
+    filter: grayscale(0.2) saturate(0.95);
+  }
+  :global(html[data-post-theme="paper"]) .post-figure figcaption {
+    color: rgba(60, 45, 20, 0.65);
+  }
+  :global(html[data-post-theme="paper"]) .post-tags-label {
+    color: rgba(70, 50, 20, 0.7);
+  }
+
+  /* Texture theme — Moon / Mercury: tiled sphere colorMap bg, white body on heavy blur */
+  :global(html[data-post-theme="texture"]) .blog-body-frame {
+    background: rgba(18, 18, 24, 0.32);
+    border-color: rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(32px) saturate(125%);
+    -webkit-backdrop-filter: blur(32px) saturate(125%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.12) inset,
+      0 30px 56px -32px rgba(0, 0, 0, 0.85);
+  }
+  :global(html[data-post-theme="texture"]) .blog-body-frame::before,
+  :global(html[data-post-theme="texture"]) .blog-body-frame::after {
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.28),
+      transparent
+    );
+  }
+  :global(html[data-post-theme="texture"]) .blog-body {
+    color: rgba(255, 255, 255, 0.96);
+  }
+  :global(html[data-post-theme="texture"]) .blog-body :global(h2) {
+    color: #ffffff;
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+  }
+  :global(html[data-post-theme="texture"]) .blog-body :global(h3) {
+    color: rgba(255, 255, 255, 0.92);
+  }
+  :global(html[data-post-theme="texture"]) .blog-body :global(blockquote) {
+    border-left-color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.78);
+  }
+  :global(html[data-post-theme="texture"]) .blog-body :global(code) {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+  }
+  :global(html[data-post-theme="texture"]) .blog-body :global(pre) {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+  }
+  :global(html[data-post-theme="texture"]) .blog-body :global(a) {
+    color: #ffffff;
+    text-decoration-color: rgba(255, 255, 255, 0.55);
+  }
+
+  :global(html[data-post-theme="texture"]) .post-kicker {
+    color: rgba(255, 255, 255, 0.78);
+    opacity: 1;
+  }
+  :global(html[data-post-theme="texture"]) .post-title {
+    color: #ffffff;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.45);
+  }
+  :global(html[data-post-theme="texture"]) .post-byline,
+  :global(html[data-post-theme="texture"]) .post-date,
+  :global(html[data-post-theme="texture"]) .post-byline em {
+    color: rgba(255, 255, 255, 0.88);
+  }
+  :global(html[data-post-theme="texture"]) .post-meta-dot {
+    color: rgba(255, 255, 255, 0.55);
+  }
+  :global(html[data-post-theme="texture"]) .post-rule,
+  :global(html[data-post-theme="texture"]) .post-footer-rule {
+    color: rgba(255, 255, 255, 0.78);
+    opacity: 1;
+  }
+  :global(html[data-post-theme="texture"]) .post-rule::before,
+  :global(html[data-post-theme="texture"]) .post-rule::after,
+  :global(html[data-post-theme="texture"]) .post-footer-rule::before,
+  :global(html[data-post-theme="texture"]) .post-footer-rule::after {
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+  }
+  :global(html[data-post-theme="texture"]) .post-figure :global(img) {
+    border-color: rgba(255, 255, 255, 0.18);
+    filter: grayscale(0.1) saturate(0.95) brightness(0.98);
+  }
+  :global(html[data-post-theme="texture"]) .post-figure figcaption {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  :global(html[data-post-theme="texture"]) .post-tags-label {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
   .blog-body {
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
-    line-height: 1.85;
-    font-size: clamp(1rem, 1.15vw, 1.1rem);
+    line-height: 1.9;
+    font-size: clamp(1.1rem, 1.35vw, 1.25rem);
     color: rgba(245, 241, 234, 0.88);
   }
 
   .blog-body :global(p) {
     margin: 0 0 1.25em;
-  }
-
-  .blog-body :global(p:first-of-type)::first-letter {
-    float: left;
-    font-family: var(--font-serif, "New Computer Modern Roman", serif);
-    font-size: 4.2em;
-    line-height: 0.88;
-    padding: 0.08em 0.12em 0 0;
-    font-weight: 400;
-    color: var(--planet-accent, #e2d1c3);
-    font-style: normal;
   }
 
   .blog-body :global(h2) {
@@ -420,9 +592,6 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
     }
     .blog-body-frame {
       padding: 1.75rem 1.25rem;
-    }
-    .blog-body :global(p:first-of-type)::first-letter {
-      font-size: 3.4em;
     }
   }
 </style>
