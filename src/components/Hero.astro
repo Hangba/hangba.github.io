@@ -1,6 +1,8 @@
 ---
 import siteConfig from "../site.config";
 import { withBase } from "../utils/helpers";
+import { getTodayPlanet } from "../data/planets";
+const planet = getTodayPlanet();
 ---
 
 <section class="hero" data-reveal-root>
@@ -19,22 +21,72 @@ import { withBase } from "../utils/helpers";
     </p>
     <div class="hero-actions" data-reveal style="--reveal-delay:380ms">
         <a class="hero-cta" href={withBase("/blog")}>
-            <span>cd ~/blog</span>
+            <span>Blog</span>
             <span aria-hidden="true">→</span>
         </a>
         <a class="hero-link" href="#recent-stories">↓ scroll</a>
     </div>
+    <div class="planet-cycler" data-reveal style="--reveal-delay:520ms">
+        <span class="planet-cycler-label">
+            <span class="planet-cycler-dot" aria-hidden="true"></span>
+            当前:<strong id="planet-cycler-name">{planet.name}</strong>
+        </span>
+        <button
+            type="button"
+            id="planet-cycler-btn"
+            class="planet-cycler-btn"
+        >
+            换一颗 →
+        </button>
+    </div>
 </section>
+
+<script>
+    import { planets } from "../data/planets";
+
+    function bindCycler() {
+        const btn = document.getElementById(
+            "planet-cycler-btn"
+        ) as HTMLButtonElement | null;
+        const nameEl = document.getElementById("planet-cycler-name");
+        const stage = document.getElementById("planet-stage");
+        if (!btn || !nameEl || !stage) return;
+        if (btn.dataset.bound === "1") return;
+        btn.dataset.bound = "1";
+
+        let idx = 0;
+        try {
+            const current = JSON.parse(stage.dataset.planet || "{}");
+            const found = planets.findIndex((p) => p.id === current.id);
+            if (found >= 0) idx = found;
+        } catch {
+            /* fall back to 0 */
+        }
+
+        btn.addEventListener("click", () => {
+            idx = (idx + 1) % planets.length;
+            const next = planets[idx];
+            const fn = (
+                window as unknown as { __switchPlanet?: (p: typeof next) => void }
+            ).__switchPlanet;
+            if (fn) fn(next);
+            nameEl.textContent = next.name;
+        });
+    }
+
+    bindCycler();
+    document.addEventListener("astro:page-load", bindCycler);
+</script>
 
 <style>
     .hero {
         position: relative;
-        z-index: 1;
+        z-index: 3;
         min-height: 100vh;
-        padding: 38vh 6vw 8vh;
+        padding: 1vh 6vw 8vh;
         display: flex;
         flex-direction: column;
-        justify-content: flex-end;
+        justify-content: flex-start;
         align-items: center;
         gap: 1.25rem;
         max-width: 1280px;
@@ -116,10 +168,58 @@ import { withBase } from "../utils/helpers";
         opacity: 1;
     }
 
+    .planet-cycler {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.9rem;
+        padding: 0.5rem 0.5rem 0.5rem 1rem;
+        margin-top: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(12px);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        color: rgba(245, 241, 234, 0.7);
+    }
+    .planet-cycler-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+    .planet-cycler-label strong {
+        font-weight: 400;
+        color: var(--planet-accent, #e2d1c3);
+    }
+    .planet-cycler-dot {
+        width: 0.55rem;
+        height: 0.55rem;
+        border-radius: 50%;
+        background: var(--planet-accent, #e2d1c3);
+        box-shadow: 0 0 10px var(--planet-accent, #e2d1c3);
+        transition: background 600ms ease, box-shadow 600ms ease;
+    }
+    .planet-cycler-btn {
+        cursor: pointer;
+        border: 0;
+        background: rgba(255, 255, 255, 0.08);
+        color: inherit;
+        font: inherit;
+        letter-spacing: inherit;
+        padding: 0.4rem 0.9rem;
+        border-radius: 999px;
+        transition: background 200ms ease, color 200ms ease;
+    }
+    .planet-cycler-btn:hover {
+        background: var(--planet-accent, #e2d1c3);
+        color: #0a0a0a;
+    }
+
     @media (max-width: 640px) {
         .hero {
-            padding: 30vh 5vw 6vh;
+            padding: 1vh 5vw 6vh;
             min-height: 100svh;
+            justify-content: flex-start;
         }
         .hero-title {
             max-width: 14ch;

@@ -55,8 +55,8 @@
 
 html[data-page="home"] {
     --p-x: 0vw;
-    --p-y: -42vh;
-    --p-s: 1.15;
+    --p-y: 8vh;
+    --p-s: 0.75;
 }
 html[data-page="blog"] {
     --p-x: 38vw;
@@ -90,17 +90,17 @@ html[data-page="404"] {
  * readable on top; the planet fills the BACKGROUND, not the foreground.
  * -------------------------------------------------------------------------- */
 
-html[data-page="home"]:not(.is-swallowing) #planet-stage {
+html[data-page="home"]:not(.is-navigating) #planet-stage {
     transform: translate3d(
             0,
-            calc(-42vh - 20vh * var(--planet-progress, 0)),
+            calc(8vh - 22vh * var(--planet-progress, 0)),
             0
         )
-        scale(calc(1.15 - 0.9 * var(--planet-progress, 0)));
+        scale(calc(0.75 - 0.5 * var(--planet-progress, 0)));
     transition: none;
 }
 
-html[data-page="blog"]:not(.is-swallowing) #planet-stage {
+html[data-page="blog"]:not(.is-navigating) #planet-stage {
     transform: translate3d(
             calc((1 - var(--planet-progress, 0)) * 38vw),
             calc((1 - var(--planet-progress, 0)) * 0vh),
@@ -110,9 +110,9 @@ html[data-page="blog"]:not(.is-swallowing) #planet-stage {
     transition: none;
 }
 
-html[data-page="about"]:not(.is-swallowing) #planet-stage,
-html[data-page="contact"]:not(.is-swallowing) #planet-stage,
-html[data-page="tags"]:not(.is-swallowing) #planet-stage {
+html[data-page="about"]:not(.is-navigating) #planet-stage,
+html[data-page="contact"]:not(.is-navigating) #planet-stage,
+html[data-page="tags"]:not(.is-navigating) #planet-stage {
     transform: translate3d(
             calc((1 - var(--planet-progress, 0)) * 32vw),
             calc((1 - var(--planet-progress, 0)) * -32vh),
@@ -123,27 +123,20 @@ html[data-page="tags"]:not(.is-swallowing) #planet-stage {
 }
 
 /* ----------------------------------------------------------------------------
- * Swallow intro (between pages)
- * Sustained ~700ms while ClientRouter loads next page in parallel.
+ * Navigation transition: the moon glides from current page's pose to the
+ * target page's pose. Scroll-driven rules above bypass during `.is-navigating`,
+ * so the base #planet-stage rule (with its 900ms transition) takes over.
  * -------------------------------------------------------------------------- */
 
-html.is-swallowing #planet-stage {
-    transform: translate3d(0, 0, 0) scale(8);
-    transition: transform 700ms cubic-bezier(0.7, 0, 0.3, 1);
-}
-
-html.is-swallowing main {
+html.is-navigating main {
     opacity: 0;
-    transform: scale(0.96);
-    transition:
-        opacity 500ms ease,
-        transform 600ms ease;
+    transform: translateY(6px);
 }
 
 main {
     transition:
-        opacity 600ms ease 80ms,
-        transform 600ms ease 80ms;
+        opacity 500ms ease,
+        transform 600ms ease;
 }
 
 /* ----------------------------------------------------------------------------
@@ -166,6 +159,28 @@ html.is-revealed [data-reveal] {
 }
 
 /* ----------------------------------------------------------------------------
+ * Landing-page content centering — overrides the global portrait left-align
+ * (global.css @media orientation:portrait .page-content { text-align: left })
+ * so blog / about / contact / tags keep their content centered on all devices.
+ * Nested .text-left descendants (e.g. post card bodies) opt back into left
+ * alignment for readability.
+ * -------------------------------------------------------------------------- */
+
+.landing-content,
+.landing-content * {
+    text-align: center;
+}
+.landing-content {
+    max-width: 48rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+.landing-content .text-left,
+.landing-content .text-left * {
+    text-align: left;
+}
+
+/* ----------------------------------------------------------------------------
  * Planet-tinted accents (driven by --planet-accent on <html>)
  * -------------------------------------------------------------------------- */
 
@@ -180,18 +195,18 @@ html.dark a:not(.button-link):hover {
 @media (max-width: 640px) {
     html[data-page="home"] {
         --p-x: 0vw;
-        --p-y: -32vh;
+        --p-y: 8vh;
         --p-s: 0.8;
     }
-    html[data-page="home"]:not(.is-swallowing) #planet-stage {
+    html[data-page="home"]:not(.is-navigating) #planet-stage {
         transform: translate3d(
                 0,
-                calc(-32vh - 16vh * var(--planet-progress, 0)),
+                calc(8vh - 20vh * var(--planet-progress, 0)),
                 0
             )
-            scale(calc(0.8 - 0.6 * var(--planet-progress, 0)));
+            scale(calc(0.8 - 0.55 * var(--planet-progress, 0)));
     }
-    html[data-page="blog"]:not(.is-swallowing) #planet-stage {
+    html[data-page="blog"]:not(.is-navigating) #planet-stage {
         transform: translate3d(
                 calc((1 - var(--planet-progress, 0)) * 28vw),
                 0,
@@ -199,9 +214,9 @@ html.dark a:not(.button-link):hover {
             )
             scale(calc(0.6 + 2.6 * var(--planet-progress, 0)));
     }
-    html[data-page="about"]:not(.is-swallowing) #planet-stage,
-    html[data-page="contact"]:not(.is-swallowing) #planet-stage,
-    html[data-page="tags"]:not(.is-swallowing) #planet-stage {
+    html[data-page="about"]:not(.is-navigating) #planet-stage,
+    html[data-page="contact"]:not(.is-navigating) #planet-stage,
+    html[data-page="tags"]:not(.is-navigating) #planet-stage {
         transform: translate3d(
                 calc((1 - var(--planet-progress, 0)) * 22vw),
                 calc((1 - var(--planet-progress, 0)) * -22vh),
@@ -217,8 +232,8 @@ html.dark a:not(.button-link):hover {
 
 @media (prefers-reduced-motion: reduce) {
     #planet-stage,
-    html.is-swallowing #planet-stage,
-    html.is-swallowing main,
+    html.is-navigating #planet-stage,
+    html.is-navigating main,
     main,
     [data-reveal] {
         transition: none !important;

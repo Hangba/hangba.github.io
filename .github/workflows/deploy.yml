@@ -6,6 +6,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    # Daily at 00:07 UTC — rebuild & redeploy so getTodayPlanet() picks the
+    # current day's planet on static GitHub Pages. Offset by 7 minutes to
+    # avoid the top-of-hour burst on GitHub's cron runners.
+    - cron: '7 0 * * *'
 
 permissions:
   contents: read

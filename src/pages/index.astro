@@ -45,7 +45,7 @@ const allPosts = (await getCollection("blogs")).sort(sortItemsByDateDesc);
                 href={withBase("/blog")}
                 class="space-btn-filled mt-12 px-8 py-3 rounded-md hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
             >
-                cd ~/blog
+                Blog
                 <ArrowRight class="w-5 h-5 fill-current ml-4 inline" />
             </Button>
         </div>
@@ -60,12 +60,6 @@ const allPosts = (await getCollection("blogs")).sort(sortItemsByDateDesc);
         margin: 0 auto;
         padding: 8vh 1.5rem 6vh;
         text-align: center;
-        background:
-            radial-gradient(
-                ellipse at top,
-                rgba(0, 0, 0, 0.55) 0%,
-                rgba(0, 0, 0, 0) 70%
-            );
     }
     .section-title {
         opacity: 0.85;

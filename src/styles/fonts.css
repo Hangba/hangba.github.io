@@ -1,3 +1,17 @@
+/* New Computer Modern Roman — local, covers Latin glyphs only.
+ * CJK codepoints fall through the stack to Noto Serif SC. */
+@font-face {
+  font-family: "New Computer Modern Roman";
+  src: url("/fonts/NCMM.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0000-00FF, U+0100-024F, U+0300-036F, U+1E00-1EFF,
+    U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F,
+    U+2190-21FF, U+2200-22FF, U+25A0-25FF, U+2C60-2C7F;
+}
+
 /* We convert all custom font classes to use New Computer Modern Roman for English and Noto Serif SC for Chinese */
 .sigmar-ff {
   font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", "Noto Serif SC", serif;

@@ -40,11 +40,13 @@ const currentTag = allTags.find((tag) => {
 ---
 
 <MainLayout pageTitle={siteConfig.title + "| " + currentTag?.name + " posts"}>
-  <div class="page-content">
-    <h2>Posts tagged with <span class="sigmar-ff">{currentTag?.name}</span></h2>
-    <div class="flex flex-col gap-8 max-w-full text-left mt-3">
+  <div class="page-content landing-content" data-reveal-root>
+    <h2 data-reveal style="--reveal-delay:0ms">Posts tagged with <span class="sigmar-ff">{currentTag?.name}</span></h2>
+    <div class="flex flex-col gap-8 max-w-full text-left mt-3" data-reveal style="--reveal-delay:120ms">
       {blog.map((post) => <PostListPreview post={post} />)}
     </div>
-    <Pagination page={page} class="mb-16 sm:mb-24" />
+    <div data-reveal style="--reveal-delay:240ms">
+      <Pagination page={page} class="mb-16 sm:mb-24" />
+    </div>
   </div>
 </MainLayout>
