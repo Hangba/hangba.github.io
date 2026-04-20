@@ -8,7 +8,9 @@ import Button from "../components/Button.astro";
 import Hero from "../components/Hero.astro";
 import ArrowRight from "../icons/ArrowRight.astro";
 
-const allPosts = (await getCollection("blogs")).sort(sortItemsByDateDesc);
+const allPosts = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
+    sortItemsByDateDesc
+);
 ---
 
 <MainLayout

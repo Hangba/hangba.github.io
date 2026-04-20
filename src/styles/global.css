@@ -20,8 +20,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "New Computer Modern Roman", "New Computer Modern", "Latin Modern Roman", "CMU Serif", "Noto Serif SC", serif;
-  --font-serif: "New Computer Modern Roman", "New Computer Modern", "Latin Modern Roman", "CMU Serif", "Noto Serif SC", serif;
+  --font-sans: "New Computer Modern Roman", "New Computer Modern", "Latin Modern Roman", "CMU Serif", var(--font-serif-cjk);
+  --font-serif: "New Computer Modern Roman", "New Computer Modern", "Latin Modern Roman", "CMU Serif", var(--font-serif-cjk);
   --color-space-red: var(--space-red);
   --color-space-yellow: var(--space-yellow);
   --color-space-sand: var(--space-sand);
@@ -30,10 +30,14 @@
 }
 
 /* 1. html elements */
+html {
+  overflow-y: auto;
+}
 html,
 body {
   @apply mx-0 my-auto min-h-screen p-0 text-base;
   overscroll-behavior: none;
+  overflow-x: clip;
 }
 
 html.dark body {
@@ -114,6 +118,90 @@ html.dark[data-post-theme="texture"]:not([data-page="home"]) button.button-link:
   background: rgba(255, 255, 255, 0.18);
 }
 
+/* Texture-theme backdrop on all non-home pages: texture map with blur */
+html.dark[data-post-theme="texture"]:not([data-page="home"]) body {
+  position: relative;
+  isolation: isolate;
+  background: #0f1116;
+}
+html.dark[data-post-theme="texture"]:not([data-page="home"]) body::before {
+  content: "";
+  position: fixed;
+  inset: -14vh -12vw;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--planet-texture);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  filter: blur(1px) saturate(0.92) brightness(0.58) contrast(1.08);
+  transform: scale(1.08);
+}
+html.dark[data-post-theme="texture"]:not([data-page="home"]) body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 22%, rgba(236, 243, 255, 0.14), transparent 46%),
+    linear-gradient(180deg, rgba(8, 10, 14, 0.46) 0%, rgba(6, 7, 10, 0.68) 100%);
+}
+html.dark[data-post-theme="texture"]:not([data-page="home"]) body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Mars style on all non-home pages */
+html.dark:not([data-page="home"]) body {
+  background:
+    radial-gradient(circle at 18% 22%, rgba(226, 132, 96, 0.18), transparent 48%),
+    radial-gradient(circle at 80% 10%, rgba(170, 76, 50, 0.25), transparent 42%),
+    linear-gradient(180deg, #2b1714 0%, #1b0f0d 100%);
+  color: rgba(247, 236, 228, 0.95);
+}
+html.dark:not([data-page="home"]) a:not(.button-link) {
+  color: #f7e5d6;
+}
+html.dark:not([data-page="home"]) a:not(.button-link):hover {
+  color: #f0a982;
+}
+html.dark:not([data-page="home"]) a.button-link:not(:disabled),
+html.dark:not([data-page="home"]) button.button-link:not(:disabled) {
+  border-color: rgba(240, 169, 130, 0.38);
+  color: #f7e5d6;
+  background: rgba(244, 146, 107, 0.08);
+}
+html.dark:not([data-page="home"]) a.button-link:not(:disabled):hover,
+html.dark:not([data-page="home"]) button.button-link:not(:disabled):hover {
+  border-color: #f0a982;
+  color: #ffd4bd;
+  background: rgba(244, 146, 107, 0.2);
+}
+
+/* Jupiter non-home pages: enforce deep-brown typography */
+html.dark[data-planet-id="jupiter"]:not([data-page="home"]) body {
+  color: #2d2316;
+}
+html.dark[data-planet-id="jupiter"]:not([data-page="home"]) a:not(.button-link) {
+  color: #6b4a18;
+}
+html.dark[data-planet-id="jupiter"]:not([data-page="home"]) a:not(.button-link):hover {
+  color: #8b5a20;
+}
+html.dark[data-planet-id="jupiter"]:not([data-page="home"]) a.button-link:not(:disabled),
+html.dark[data-planet-id="jupiter"]:not([data-page="home"]) button.button-link:not(:disabled) {
+  border-color: rgba(70, 50, 20, 0.35);
+  color: #3d2810;
+  background: rgba(255, 253, 245, 0.3);
+}
+html.dark[data-planet-id="jupiter"]:not([data-page="home"]) a.button-link:not(:disabled):hover,
+html.dark[data-planet-id="jupiter"]:not([data-page="home"]) button.button-link:not(:disabled):hover {
+  border-color: #8b5a20;
+  color: #8b5a20;
+  background: rgba(255, 253, 245, 0.55);
+}
+
 /* semantic elements */
 header {
   @apply sticky top-4 z-20 mr-auto ml-auto flex w-full flex-col items-center justify-center px-0 py-0 text-base;
@@ -132,6 +220,8 @@ header > nav {
 
 main {
   @apply mx-auto flex flex-col items-start justify-between px-4 pt-0 pb-0 sm:items-center;
+  position: relative;
+  z-index: 2;
 }
 
 footer {

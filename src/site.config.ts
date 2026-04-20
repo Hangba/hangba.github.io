@@ -63,8 +63,8 @@ export type SiteConfig = {
 
 const siteConfig: SiteConfig = {
     website: 'https://hangba.github.io',
-    title: 'HangbaSteve的个人博客',
-    description: 'HangbaSteve的个人空间',
+    title: 'HangbaSteve的Blog',
+    description: 'HangbaSteve的个人Blog',
     headerNavLinks: [
         {
             text: 'Home',
@@ -109,7 +109,7 @@ const siteConfig: SiteConfig = {
         eyebrowText: '欢迎来到',
         title: 'HangbaSteve的Blog',
         titleLines: ['HangbaSteve', 'Blog'],
-        text: "This is a cosmic space.",
+        text: "My God! It's full of stars!",
         image: {
             src: '/assets/images/pixeltrue-space-discovery.svg',
             alt: 'A person sitting at a desk in front of a computer'

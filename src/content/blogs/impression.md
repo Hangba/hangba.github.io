@@ -1,19 +1,18 @@
 ---
-title: "模板文章"
-description: "这是一篇模板文章，用于展示博客排版和效果。"
+title: "我"
+description: "什么是空间科学与技术？"
 author: "HangbaSteve"
-draft: true
 image:
-  url: "../../assets/images/1.png"
-  alt: "Template Image"
-pubDate: 2024-04-18
+  url: "../../assets/images/impression.png"
+  alt: "Impression Picture"
+pubDate: 2026-04-20
 tags:
-  ["template", "blog"]
+  ["me"]
 ---
 
 欢迎来到 **HangbaSteve的个人博客**！
 
-这是一篇模板文章。你可以利用Markdown编写想要发表的内容。
+第一次写博客，不知所言。
 
 ## 功能介绍
 

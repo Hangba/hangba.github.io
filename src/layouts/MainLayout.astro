@@ -5,7 +5,7 @@ import { ClientRouter } from "astro:transitions";
 import Footer from "../components/Footer.astro";
 import Nav from "../components/Nav.astro";
 import PlanetStage from "../components/PlanetStage.astro";
-import { getTodayPlanet } from "../data/planets";
+import { getTodayPlanet, planets } from "../data/planets";
 import { withBase } from "../utils/helpers";
 import siteConfig from "../site.config";
 
@@ -41,12 +41,31 @@ const textureStyle = planet.postTheme === "texture"
 const themeStyle = `--planet-theme:${planet.themeColor};--planet-accent:${planet.accentColor};${textureStyle}`;
 const showPlanet = dataPage === "home";
 const postTheme = planet.postTheme ?? undefined;
+const htmlClass = [
+    "antialiased",
+    "break-words",
+    "dark",
+    showPlanet ? "home-planet-preload" : "",
+]
+    .filter(Boolean)
+    .join(" ");
+const planetThemeMap = Object.fromEntries(
+    planets.map((p) => [
+        p.id,
+        {
+            themeColor: p.themeColor,
+            accentColor: p.accentColor,
+            postTheme: p.postTheme,
+            colorMap: p.colorMap,
+        },
+    ])
+);
 ---
 
 <!doctype html>
 <html
     lang="en"
-    class="antialiased break-words dark"
+    class={htmlClass}
     data-page={dataPage}
     data-planet-id={planet.id}
     data-post-theme={postTheme}
@@ -58,18 +77,12 @@ const postTheme = planet.postTheme ?? undefined;
         <meta name="viewport" content="width=device-width" />
         <meta name="generator" content={Astro.generator} />
         <link rel="sitemap" href={withBase(`/sitemap-index.xml`)} />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
             rel="preload"
             href={withBase("/fonts/NCMM.woff2")}
             as="font"
             type="font/woff2"
             crossorigin
-        />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;700;900&family=Noto+Serif:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap"
-            rel="stylesheet"
         />
         <link
             rel="stylesheet"
@@ -83,6 +96,41 @@ const postTheme = planet.postTheme ?? undefined;
             title={siteConfig.title + " - RSS Feed"}
             href={new URL(withBase("/rss.xml"), Astro.site)}
         />
+        <script is:inline define:vars={{ planetThemeMap }}>
+            const applyPersistedPlanetTheme = () => {
+                try {
+                    const root = document.documentElement;
+                    const id = sessionStorage.getItem("planet:currentId");
+                    if (!id) return;
+                    const config = planetThemeMap[id];
+                    if (!config) return;
+
+                    root.style.setProperty("--planet-theme", config.themeColor);
+                    root.style.setProperty("--planet-accent", config.accentColor);
+                    if (config.postTheme === "texture") {
+                        root.style.setProperty(
+                            "--planet-texture",
+                            `url('${config.colorMap}')`
+                        );
+                    } else {
+                        root.style.removeProperty("--planet-texture");
+                    }
+
+                    if (config.postTheme) {
+                        root.dataset.postTheme = config.postTheme;
+                    } else {
+                        delete root.dataset.postTheme;
+                    }
+                    root.dataset.planetId = id;
+                } catch {
+                    /* ignore */
+                }
+            };
+
+            applyPersistedPlanetTheme();
+            document.addEventListener("astro:after-swap", applyPersistedPlanetTheme);
+            document.addEventListener("astro:page-load", applyPersistedPlanetTheme);
+        </script>
         <title>{pageTitle}</title>
         <ClientRouter />
     </head>
@@ -90,7 +138,9 @@ const postTheme = planet.postTheme ?? undefined;
         {showPlanet && <PlanetStage planet={planet} />}
         <main class="w-full mx-auto min-h-screen">
             <Nav activePage={activePage} />
-            <slot />
+            <section id="page-content-shell">
+                <slot />
+            </section>
             <Footer />
         </main>
         <script>

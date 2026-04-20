@@ -13,7 +13,9 @@ import Pagination from "../../../components/Pagination.astro";
 import PostListPreview from "../../../components/PostListPreview.astro";
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-  const posts = (await getCollection("blogs")).sort(sortItemsByDateDesc);
+  const posts = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
+    sortItemsByDateDesc
+  );
   const tags = getAllTags(posts);
 
   return tags.flatMap((tag) => {
@@ -31,7 +33,7 @@ const { page } = Astro.props;
 const blog = page.data;
 const params = Astro.params;
 const allPosts = await getCollection("blogs", (post) =>
-  post.data.tags?.includes(params.id)
+  !post.data.draft && post.data.tags?.includes(params.id)
 );
 const allTags = getAllTags(allPosts);
 const currentTag = allTags.find((tag) => {
@@ -41,7 +43,7 @@ const currentTag = allTags.find((tag) => {
 
 <MainLayout activePage="tags" pageTitle={siteConfig.title + "| " + currentTag?.name + " posts"}>
   <div class="page-content landing-content magazine-wrap" data-reveal-root>
-    <div class="magazine-header" data-reveal style="--reveal-delay:0ms">
+    <div class="magazine-header" data-reveal style="--reveal-delay:80ms">
       <span class="magazine-kicker">The Journal &mdash; Tag</span>
       <h1 class="magazine-masthead">{currentTag?.name}</h1>
       <p class="magazine-dek">Posts filed under <em>{currentTag?.name}</em>.</p>
@@ -50,13 +52,13 @@ const currentTag = allTags.find((tag) => {
       </div>
     </div>
 
-    <div class="magazine-frame text-left" data-reveal style="--reveal-delay:200ms">
+    <div class="magazine-frame text-left" data-reveal style="--reveal-delay:80ms">
       <div class="flex flex-col gap-8">
         {blog.map((post) => <PostListPreview post={post} />)}
       </div>
     </div>
 
-    <div data-reveal style="--reveal-delay:320ms">
+    <div data-reveal style="--reveal-delay:200ms">
       <Pagination page={page} class="mb-16 sm:mb-24" />
     </div>
   </div>

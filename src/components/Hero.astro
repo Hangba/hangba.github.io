@@ -60,12 +60,17 @@ const titleLines = siteConfig.hero?.titleLines;
 
         let idx = 0;
         try {
-            const current = JSON.parse(stage.dataset.planet || "{}");
+            const persistedId = sessionStorage.getItem("planet:currentId");
+            const current = persistedId
+                ? { id: persistedId }
+                : JSON.parse(stage.dataset.planet || "{}");
             const found = planets.findIndex((p) => p.id === current.id);
             if (found >= 0) idx = found;
         } catch {
             /* fall back to 0 */
         }
+
+        nameEl.textContent = planets[idx]?.name ?? "";
 
         btn.addEventListener("click", () => {
             idx = (idx + 1) % planets.length;
@@ -86,6 +91,7 @@ const titleLines = siteConfig.hero?.titleLines;
     .hero {
         position: relative;
         z-index: 3;
+        align-self: flex-end;
         min-height: 100vh;
         padding: 14vh 0 8vh;
         display: flex;
@@ -258,6 +264,20 @@ const titleLines = siteConfig.hero?.titleLines;
         .planet-cycler {
             margin-left: auto;
             margin-right: auto;
+        }
+    }
+
+    @media (min-width: 769px) {
+        :global(html[data-page="home"]) .hero {
+            align-self: flex-end !important;
+            align-items: flex-end !important;
+            text-align: right !important;
+            margin-left: auto !important;
+            margin-right: 10vw !important;
+        }
+
+        :global(html[data-page="home"]) .hero-title--stacked {
+            align-items: flex-end !important;
         }
     }
 </style>

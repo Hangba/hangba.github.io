@@ -9,13 +9,13 @@ const { post } = Astro.props;
 const { title, pubDate, description, image } = post.data;
 ---
 
-<a class="font-bold" href={withBase("/blog/" + post.id)}>
-  <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
+<a class="font-bold block w-full" href={withBase("/blog/" + post.id)}>
+  <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start">
     {
       image && image.url && (
         <>
           <Image
-            class=""
+            class="self-start"
             src={image.url}
             alt={image.alt || ""}
             width={300}
@@ -24,12 +24,12 @@ const { title, pubDate, description, image } = post.data;
         </>
       )
     }
-    <div class="flex flex-col max-w-fit">
-      <h2 class="mb-1">{title}</h2>
+    <div class="flex flex-col flex-1 items-center text-center">
+      <h2 class="mb-1 text-center">{title}</h2>
       <FormattedDate date={new Date(pubDate)} />
       {
         description && (
-          <p class="font-light text-base text-balance">{description}</p>
+          <p class="font-light text-base text-balance text-center">{description}</p>
         )
       }
     </div>

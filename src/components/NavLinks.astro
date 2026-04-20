@@ -14,9 +14,8 @@ const {
   links?.map((link) => {
     const classNames = [
       isMobileLink ? "close-menu" : "",
-      activePage === link.text.toLowerCase()
-        ? "text-space-red! dark:text-space-yellow!"
-        : "",
+      "nav-link",
+      activePage === link.text.toLowerCase() ? "is-active" : "",
     ]
       .join(" ")
       .trim();
@@ -27,3 +26,42 @@ const {
     );
   })
 }
+
+<style>
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .nav-link.is-active {
+    color: #90393a !important;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .nav-link.is-active::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.2em;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.65;
+  }
+
+  :global(html.dark[data-page="home"]) .nav-link.is-active {
+    color: #ffe08a !important;
+    text-shadow: 0 0 10px rgba(255, 224, 138, 0.35);
+  }
+
+  :global(html.dark[data-post-theme="paper"]) .nav-link.is-active {
+    color: #6b4a18 !important;
+    text-shadow: none;
+  }
+
+  :global(html.dark[data-post-theme="texture"]) .nav-link.is-active {
+    color: #f5f5f5 !important;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  }
+</style>

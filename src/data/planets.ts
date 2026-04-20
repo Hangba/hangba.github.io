@@ -78,6 +78,7 @@ export const planets: Planet[] = [
         ambientLight: 0.07,
         sunIntensity: 2.3,
         tiltDeg: 25.2,
+        postTheme: "texture",
     },
     {
         id: "jupiter",

@@ -14,7 +14,9 @@ import ArrowRight from "../../icons/ArrowRight.astro";
 import siteConfig from "../../site.config";
 
 export async function getStaticPaths() {
-  const posts = (await getCollection("blogs")).sort(sortItemsByDateDesc);
+  const posts = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
+    sortItemsByDateDesc
+  );
   const postCount = posts.length;
   return posts.map((post, index) => ({
     params: { id: post.id },

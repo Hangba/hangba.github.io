@@ -10,7 +10,9 @@ import Button from "../../components/Button.astro";
 import MainLayout from "../../layouts/MainLayout.astro";
 import siteConfig from "../../site.config";
 
-const posts = (await getCollection("blogs")).sort(sortItemsByDateDesc);
+const posts = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
+  sortItemsByDateDesc
+);
 const tags = getAllTags(posts).sort((tagA, tagB) => {
   const postCountTagA = getPostsByTag(posts, tagA.id).length;
   const postCountTagB = getPostsByTag(posts, tagB.id).length;
@@ -23,7 +25,7 @@ const tags = getAllTags(posts).sort((tagA, tagB) => {
   pageTitle={siteConfig.title + " | " + "Tags Index"}
 >
   <div class="page-content landing-content magazine-wrap" data-reveal-root>
-    <div class="magazine-header" data-reveal style="--reveal-delay:0ms">
+    <div class="magazine-header" data-reveal style="--reveal-delay:80ms">
       <span class="magazine-kicker">The Journal &mdash; Tags</span>
       <h1 class="magazine-masthead">Tags</h1>
       <p class="magazine-dek">Select a tag to view related posts.</p>
@@ -32,7 +34,7 @@ const tags = getAllTags(posts).sort((tagA, tagB) => {
       </div>
     </div>
 
-    <div class="magazine-frame tag-frame text-left" data-reveal style="--reveal-delay:200ms">
+    <div class="magazine-frame tag-frame text-left" data-reveal style="--reveal-delay:80ms">
       <div class="tag-list">
         {
           tags.map((tag) => {

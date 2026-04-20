@@ -9,11 +9,29 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 2;
+    z-index: 0;
     transform-origin: center center;
     will-change: transform, opacity;
     transform: translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0)
         scale(var(--p-s, 1));
+}
+
+/* Home intro: delay planet, then fly in from top-left */
+html[data-page="home"].home-planet-preload:not(.home-planet-entered) #planet-stage {
+    opacity: 0;
+    transform: translate3d(-58vw, -58vh, 0) scale(0.42);
+    filter: blur(2px);
+}
+
+html[data-page="home"].home-planet-preload.home-planet-entered #planet-stage {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0)
+        scale(var(--p-s, 1));
+    transition:
+        transform 1100ms cubic-bezier(0.19, 1, 0.22, 1),
+        opacity 680ms ease,
+        filter 980ms ease;
 }
 
 #planet-stage canvas {
@@ -120,20 +138,39 @@ html[data-page="tags"]:not(.is-navigating) #planet-stage {
  * -------------------------------------------------------------------------- */
 
 main {
-    transition:
-        opacity 260ms ease,
-        transform 320ms cubic-bezier(0.33, 1, 0.68, 1);
+    overflow-x: clip;
 }
 
-html.is-navigating main {
-    opacity: 0;
-    transform: translateX(-32px);
+#page-content-shell {
+    opacity: 1;
+    transform: none;
+    will-change: opacity;
+    width: 100%;
+    max-width: 100%;
 }
 
-html.is-entering main {
+html.is-navigating #page-content-shell {
     opacity: 0;
-    transform: translateX(32px);
-    transition: none;
+    transform: none;
+    transition: opacity 90ms linear;
+}
+
+html.is-entering #page-content-shell {
+    animation: page-content-enter 220ms ease-out both;
+}
+
+html.is-navigating,
+html.is-entering {
+    overflow-x: clip;
+}
+
+@keyframes page-content-enter {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 /* ----------------------------------------------------------------------------
@@ -141,18 +178,22 @@ html.is-entering main {
  * fade/translate up after page-load fires .is-revealed
  * -------------------------------------------------------------------------- */
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 [data-reveal] {
-    opacity: 0;
-    transform: translateY(14px);
-    transition:
-        opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
-        transform 900ms cubic-bezier(0.16, 1, 0.3, 1);
-    transition-delay: var(--reveal-delay, 0ms);
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
 }
 
 html.is-revealed [data-reveal] {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
 }
 
 /* ----------------------------------------------------------------------------
@@ -195,6 +236,9 @@ html.dark a:not(.button-link):hover {
         --p-y: -26vh;
         --p-s: 0.85;
     }
+    html[data-page="home"].home-planet-preload:not(.home-planet-entered) #planet-stage {
+        transform: translate3d(-46vw, -52vh, 0) scale(0.36);
+    }
     html[data-page="blog-post"] {
         --p-x: 28vw;
         --p-y: -28vh;
@@ -227,10 +271,20 @@ html.dark a:not(.button-link):hover {
 @media (prefers-reduced-motion: reduce) {
     #planet-stage,
     html.is-navigating #planet-stage,
-    html.is-navigating main,
+    html.is-navigating #page-content-shell,
+    html.is-entering #page-content-shell,
     main,
     [data-reveal] {
         transition: none !important;
+    }
+    html.is-entering #page-content-shell {
+        animation: none !important;
+    }
+    html[data-page="home"].home-planet-preload #planet-stage {
+        opacity: 1;
+        filter: none;
+        transform: translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0)
+            scale(var(--p-s, 1));
     }
     [data-reveal] {
         opacity: 1;

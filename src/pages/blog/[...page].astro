@@ -9,7 +9,9 @@ import siteConfig from "../../site.config";
 import FormattedDate from "../../components/FormattedDate.astro";
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
-  const blogs = (await getCollection("blogs")).sort(sortItemsByDateDesc);
+  const blogs = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
+    sortItemsByDateDesc
+  );
   return paginate(blogs, { pageSize: siteConfig.postsPerPage || 2 });
 }
 
@@ -422,6 +424,92 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
   }
   :global(html[data-post-theme="texture"]) .magazine-sep {
     color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* Mars style on non-home pages */
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-kicker {
+    color: #f0a982;
+    opacity: 1;
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-masthead {
+    color: #ffe6d5;
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-dek {
+    color: rgba(247, 229, 214, 0.82);
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-rule {
+    color: rgba(240, 169, 130, 0.88);
+    opacity: 1;
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-rule::before,
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-rule::after {
+    background: linear-gradient(to right, transparent, rgba(240,169,130,0.35), transparent);
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-frame {
+    background: rgba(32, 16, 14, 0.5);
+    border-color: rgba(240, 169, 130, 0.24);
+    backdrop-filter: blur(28px) saturate(120%);
+    -webkit-backdrop-filter: blur(28px) saturate(120%);
+    box-shadow:
+      0 1px 0 rgba(255, 240, 230, 0.08) inset,
+      0 30px 56px -32px rgba(0, 0, 0, 0.8);
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-frame::before,
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-frame::after {
+    background: linear-gradient(to right, transparent, rgba(240,169,130,0.24), transparent);
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-entry-meta {
+    color: rgba(247, 229, 214, 0.68);
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-number {
+    color: #f0a982;
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-title {
+    color: #ffe6d5;
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-link:hover .magazine-title {
+    color: #ffd4bd;
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-excerpt {
+    color: rgba(247, 229, 214, 0.86);
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-more {
+    color: #f0a982;
+    opacity: 1;
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-figure {
+    border-color: rgba(240, 169, 130, 0.25);
+  }
+  :global(html.dark[data-planet-id="mars"]:not([data-page="home"])) .magazine-sep {
+    color: rgba(240, 169, 130, 0.45);
+  }
+
+  /* Jupiter archive readability: deep-brown text */
+  :global(html.dark[data-planet-id="jupiter"]) .magazine-kicker {
+    color: #6b4a18;
+    opacity: 1;
+  }
+  :global(html.dark[data-planet-id="jupiter"]) .magazine-masthead {
+    color: #1a120a;
+  }
+  :global(html.dark[data-planet-id="jupiter"]) .magazine-dek {
+    color: rgba(50, 35, 15, 0.82);
+  }
+  :global(html.dark[data-planet-id="jupiter"]) .magazine-entry-meta {
+    color: rgba(70, 50, 20, 0.78);
+  }
+  :global(html.dark[data-planet-id="jupiter"]) .magazine-number,
+  :global(html.dark[data-planet-id="jupiter"]) .magazine-more {
+    color: #8b5a20;
+  }
+  :global(html.dark[data-planet-id="jupiter"]) .magazine-title {
+    color: #1a120a;
+  }
+  :global(html.dark[data-planet-id="jupiter"]) .magazine-link:hover .magazine-title {
+    color: #8b5a20;
+  }
+  :global(html.dark[data-planet-id="jupiter"]) .magazine-excerpt {
+    color: rgba(50, 35, 15, 0.86);
   }
 
   @media (max-width: 640px) {
