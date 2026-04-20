@@ -36,6 +36,7 @@ html {
 html,
 body {
   @apply mx-0 my-auto min-h-screen p-0 text-base;
+  font-family: var(--font-serif);
   overscroll-behavior: none;
   overflow-x: clip;
 }
@@ -94,10 +95,10 @@ html.dark[data-post-theme="paper"]:not([data-page="home"]) button.button-link:no
   background: rgba(255, 253, 245, 0.55);
 }
 
-/* Slate theme on all non-home pages (Moon / Mercury): solid dark-gray background */
+/* Slate theme on all non-home pages (Moon / Mercury): typography only — the
+   backdrop is provided by the html-level texture stack further down so body
+   must stay transparent to let it show through. */
 html.dark[data-post-theme="texture"]:not([data-page="home"]) body {
-  background: #2a2a2e;
-  background-image: none;
   color: rgba(245, 245, 250, 0.95);
 }
 html.dark[data-post-theme="texture"]:not([data-page="home"]) a:not(.button-link) {
@@ -118,34 +119,39 @@ html.dark[data-post-theme="texture"]:not([data-page="home"]) button.button-link:
   background: rgba(255, 255, 255, 0.18);
 }
 
-/* Texture-theme backdrop on all non-home pages: texture map with blur */
-html.dark[data-post-theme="texture"]:not([data-page="home"]) body {
-  position: relative;
-  isolation: isolate;
-  background: #0f1116;
-}
-html.dark[data-post-theme="texture"]:not([data-page="home"]) body::before {
-  content: "";
-  position: fixed;
-  inset: -14vh -12vw;
-  z-index: 0;
-  pointer-events: none;
-  background-image: var(--planet-texture);
+/* Texture-theme backdrop on all non-home pages.
+   All darkening/radial effects live on <html> so canvas propagation paints the
+   final look across the entire initial containing block — including behind iOS
+   translucent URL bars and safe areas. body stays transparent; body::before is
+   only a subtle blur pass over the body area. */
+html.dark[data-post-theme="texture"]:not([data-page="home"]) {
+  background-color: #0f1116;
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(236, 243, 255, 0.14), transparent 46%),
+    linear-gradient(180deg, rgba(8, 10, 14, 0.68) 0%, rgba(6, 7, 10, 0.80) 100%),
+    var(--planet-texture);
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  filter: blur(1px) saturate(0.92) brightness(0.58) contrast(1.08);
-  transform: scale(1.08);
+  background-attachment: fixed;
 }
-html.dark[data-post-theme="texture"]:not([data-page="home"]) body::after {
+html.dark[data-post-theme="texture"]:not([data-page="home"]) body {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+html.dark[data-post-theme="texture"]:not([data-page="home"]) body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at 18% 22%, rgba(236, 243, 255, 0.14), transparent 46%),
-    linear-gradient(180deg, rgba(8, 10, 14, 0.46) 0%, rgba(6, 7, 10, 0.68) 100%);
+  backdrop-filter: blur(1.2px) saturate(0.96);
+  -webkit-backdrop-filter: blur(1.2px) saturate(0.96);
+}
+html.dark[data-post-theme="texture"]:not([data-page="home"]) body::after {
+  content: "";
+  display: none;
 }
 html.dark[data-post-theme="texture"]:not([data-page="home"]) body > * {
   position: relative;

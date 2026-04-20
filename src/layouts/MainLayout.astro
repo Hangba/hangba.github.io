@@ -41,6 +41,13 @@ const textureStyle = planet.postTheme === "texture"
 const themeStyle = `--planet-theme:${planet.themeColor};--planet-accent:${planet.accentColor};${textureStyle}`;
 const showPlanet = dataPage === "home";
 const postTheme = planet.postTheme ?? undefined;
+const resolveStatusBarColor = (): string => {
+    if (showPlanet) return planet.themeColor;
+    if (planet.postTheme === "texture") return "#1c1e23";
+    if (planet.postTheme === "paper") return planet.themeColor;
+    return "#1b0f0d";
+};
+const statusBarColor = resolveStatusBarColor();
 const htmlClass = [
     "antialiased",
     "break-words",
@@ -74,7 +81,10 @@ const planetThemeMap = Object.fromEntries(
     <head>
         <meta charset="utf-8" />
         <link rel="icon" href={withBase(`/space-ahead-logo.png`)} />
-        <meta name="viewport" content="width=device-width" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content={statusBarColor} />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="generator" content={Astro.generator} />
         <link rel="sitemap" href={withBase(`/sitemap-index.xml`)} />
         <link
@@ -83,6 +93,12 @@ const planetThemeMap = Object.fromEntries(
             as="font"
             type="font/woff2"
             crossorigin
+        />
+        <link rel="preconnect" href="https://fonts.loli.net" />
+        <link rel="preconnect" href="https://gstatic.loli.net" crossorigin />
+        <link
+            rel="stylesheet"
+            href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@300;400;700;900&display=swap"
         />
         <link
             rel="stylesheet"
@@ -122,6 +138,24 @@ const planetThemeMap = Object.fromEntries(
                         delete root.dataset.postTheme;
                     }
                     root.dataset.planetId = id;
+
+                    const themeMeta = document.querySelector(
+                        'meta[name="theme-color"]'
+                    );
+                    if (themeMeta) {
+                        const page = root.dataset.page;
+                        let barColor;
+                        if (page === "home") {
+                            barColor = config.themeColor;
+                        } else if (config.postTheme === "texture") {
+                            barColor = "#1c1e23";
+                        } else if (config.postTheme === "paper") {
+                            barColor = config.themeColor;
+                        } else {
+                            barColor = "#1b0f0d";
+                        }
+                        themeMeta.setAttribute("content", barColor);
+                    }
                 } catch {
                     /* ignore */
                 }

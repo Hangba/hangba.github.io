@@ -1,8 +1,14 @@
-/* New Computer Modern Roman — local, covers Latin glyphs only.
- * CJK codepoints fall through the stack to Noto Serif SC. */
+/* New Computer Modern Roman — bundled woff2, claims Latin / punctuation / math
+ * glyphs exclusively via unicode-range so CJK codepoints always fall through
+ * to Noto Serif SC. Local installations win over the network fetch. */
 @font-face {
   font-family: "New Computer Modern Roman";
-  src: url("/fonts/NCMM.woff2") format("woff2");
+  src:
+    local("New Computer Modern Roman"),
+    local("NewComputerModern Roman"),
+    local("New Computer Modern"),
+    local("Latin Modern Roman"),
+    url("/fonts/NCMM.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: block;
@@ -12,11 +18,19 @@
     U+2190-21FF, U+2200-22FF, U+25A0-25FF, U+2C60-2C7F;
 }
 
+/* Source Han Serif SC / 思源宋体 is served from Google Fonts as "Noto Serif SC"
+ * — same font, maintained jointly by Adobe & Google. Google's CSS2 API splits
+ * the font by unicode-range so each page only downloads the glyphs it actually
+ * renders (typically 30–80 KB instead of the 16 MB full font).
+ * The <link> tag lives in MainLayout.astro <head>. */
 :root {
   --font-serif-cjk:
+    "Noto Serif SC",
+    "Source Han Serif SC",
+    "Source Han Serif CN",
+    "思源宋体",
     "Songti SC",
     "STSong",
-    "Source Han Serif SC",
     "Noto Serif CJK SC",
     "SimSun",
     serif;

@@ -236,6 +236,11 @@ html.dark a:not(.button-link):hover {
         --p-y: -26vh;
         --p-s: 0.85;
     }
+    html[data-page="home"][data-planet-id="saturn"] {
+        --p-x: -2vw;
+        --p-y: -14vh;
+        --p-s: 0.66;
+    }
     html[data-page="home"].home-planet-preload:not(.home-planet-entered) #planet-stage {
         transform: translate3d(-46vw, -52vh, 0) scale(0.36);
     }
