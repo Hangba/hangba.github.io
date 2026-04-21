@@ -4,15 +4,14 @@ Welcome to my personal blog source code repository!
 
 This site is built with [Astro](https://astro.build/) and is automatically deployed to GitHub Pages.
 
-## 📊 GitHub Stats
+## 📊 GitHub Activity
 
 <p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=Hangba&theme=react-dark" width="100%" alt="GitHub Activity Graph" />
+  <img src="https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=Hangba&theme=transparent" width="100%" alt="GitHub contributions in the last year" />
 </p>
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=Hangba&show_icons=true&theme=react-dark" width="48%" alt="GitHub Stats" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Hangba&layout=compact&theme=react-dark" width="48%" alt="Top Languages" />
+  <img src="https://github-profile-summary-cards.vercel.app/api/cards/productive-time?username=Hangba&theme=transparent&utcOffset=8" width="48%" alt="Average commit time distribution within a day" />
 </p>
 
 ## 🚀 Local Development
