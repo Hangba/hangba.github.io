@@ -38,13 +38,13 @@ type StageState = {
 
 let state: StageState | null = null;
 let scrollHandlerAttached = false;
-const SCROLL_PAGES = new Set(["home", "blog", "about", "contact", "tags"]);
+const SCROLL_PAGES = new Set(["home", "blog", "about", "contact", "friends", "tags"]);
 const NAVIGATE_DURATION = 900;
 const CONTENT_ENTER_DURATION = 220;
 const PLANET_SWITCH_OUT_MS = 360;
 const PLANET_SWITCH_IN_MS = 920;
-const STAR_PARALLAX_X = 0.28;
-const STAR_PARALLAX_Y = 0.18;
+const STAR_PARALLAX_X = 0.1;
+const STAR_PARALLAX_Y = 0.07;
 let enteringClassTimer: number | undefined;
 let planetSwitching = false;
 const planetClickRaycaster = new THREE.Raycaster();
@@ -56,6 +56,7 @@ function pathToPage(pathname: string): string {
     if (pathname.startsWith("/tags")) return "tags";
     if (pathname.startsWith("/about")) return "about";
     if (pathname.startsWith("/contact")) return "contact";
+    if (pathname.startsWith("/friends")) return "friends";
     return "home";
 }
 

@@ -111,8 +111,11 @@ document.addEventListener("astro:page-load", bindScroll);
   }
   
   :global(#site-header .desktop-links) {
-    transition: max-width 0.3s cubic-bezier(0.25, 1, 0.5, 1) 0.1s, 
-                opacity 0.2s ease;
+    transition:
+      max-width 0.42s cubic-bezier(0.25, 1, 0.5, 1) 0.06s,
+      opacity 0.28s ease,
+      margin 0.42s cubic-bezier(0.25, 1, 0.5, 1),
+      padding 0.42s cubic-bezier(0.25, 1, 0.5, 1);
     transform-origin: center;
     max-width: 500px;
     opacity: 1;
@@ -121,17 +124,16 @@ document.addEventListener("astro:page-load", bindScroll);
   }
 
   :global(#site-header.nav-scrolled .desktop-links) {
-    transition: max-width 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                opacity 0.2s ease;
+    transition:
+      opacity 0.22s ease,
+      max-width 0.42s cubic-bezier(0.25, 1, 0.5, 1) 0.05s,
+      margin 0.42s cubic-bezier(0.25, 1, 0.5, 1),
+      padding 0.42s cubic-bezier(0.25, 1, 0.5, 1);
     max-width: 0 !important;
     opacity: 0 !important;
     margin-left: 0 !important;
     padding: 0 !important;
     pointer-events: none;
-  }
-
-  :global(#site-header.nav-scrolled .desktop-links *) {
-    display: none;
   }
 
   :global(#site-header.nav-scrolled .site-nav) {

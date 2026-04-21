@@ -33,7 +33,9 @@ const dataPage = pageKind
               ? "about"
               : pathname.startsWith("/contact")
                 ? "contact"
-                : "home";
+                : pathname.startsWith("/friends")
+                  ? "friends"
+                  : "home";
 
 const textureStyle = planet.postTheme === "texture"
     ? `--planet-texture:url('${planet.colorMap}');`

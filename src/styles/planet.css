@@ -102,6 +102,11 @@ html[data-page="contact"] {
     --p-y: -32vh;
     --p-s: 0.45;
 }
+html[data-page="friends"] {
+    --p-x: 32vw;
+    --p-y: -32vh;
+    --p-s: 0.45;
+}
 html[data-page="tags"] {
     --p-x: 32vw;
     --p-y: -32vh;
@@ -131,6 +136,7 @@ html[data-page="blog"]:not(.is-navigating) #planet-stage {
 
 html[data-page="about"]:not(.is-navigating) #planet-stage,
 html[data-page="contact"]:not(.is-navigating) #planet-stage,
+html[data-page="friends"]:not(.is-navigating) #planet-stage,
 html[data-page="tags"]:not(.is-navigating) #planet-stage {
     transform: translate3d(
             calc((1 - var(--planet-progress, 0)) * 32vw),
@@ -227,6 +233,189 @@ html.is-revealed [data-reveal] {
     text-align: left;
 }
 
+.friends-wrap {
+    position: relative;
+    z-index: 3;
+}
+
+.friends-header {
+    text-align: center;
+    padding: 4rem 1rem 2rem;
+}
+
+.friends-kicker {
+    display: inline-block;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 0.72rem;
+    letter-spacing: 0.55em;
+    text-transform: uppercase;
+    color: var(--planet-accent, #e2d1c3);
+    margin-bottom: 1.25rem;
+    opacity: 0.9;
+}
+
+.friends-title {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-weight: 300;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    line-height: 1;
+    margin: 0 0 1rem;
+    color: #f5f1ea;
+}
+
+.friends-dek {
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-style: italic;
+    color: rgba(245, 241, 234, 0.72);
+    margin: 0 auto;
+}
+
+.friends-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    max-width: 72rem;
+    margin: 1.5rem auto 5rem;
+}
+
+.friend-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 1.25rem;
+    background: rgba(12, 12, 16, 0.34);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
+    color: rgba(245, 241, 234, 0.86);
+    text-decoration: none;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06) inset,
+        0 24px 48px -32px rgba(0, 0, 0, 0.68);
+    transition:
+        border-color 220ms ease,
+        transform 220ms ease,
+        background 220ms ease;
+}
+
+.friend-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--planet-accent, #e2d1c3) 62%, white);
+    background: rgba(18, 18, 24, 0.44);
+}
+
+.friend-avatar {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    flex: 0 0 auto;
+}
+
+.friend-body {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+}
+
+.friend-body h2 {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin: 0 0 0.25rem;
+    color: #f5f1ea;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+
+.friend-body h2 span {
+    font-size: 0.78rem;
+    color: rgba(245, 241, 234, 0.62);
+}
+
+.friend-description,
+.friend-tips {
+    margin: 0;
+    font-family: var(--font-serif, "New Computer Modern Roman", serif);
+}
+
+.friend-description {
+    color: rgba(245, 241, 234, 0.68);
+    font-size: 0.88rem;
+}
+
+.friend-tips {
+    color: var(--planet-accent, #e2d1c3);
+    font-style: italic;
+    margin-top: 0.35rem;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+html[data-post-theme="paper"] .friends-kicker,
+html[data-post-theme="paper"] .friend-tips {
+    color: #8b5a20;
+}
+
+html[data-post-theme="paper"] .friends-title,
+html[data-post-theme="paper"] .friend-body h2 {
+    color: #1a120a;
+}
+
+html[data-post-theme="paper"] .friends-dek,
+html[data-post-theme="paper"] .friend-description,
+html[data-post-theme="paper"] .friend-body h2 span {
+    color: rgba(50, 35, 15, 0.72);
+}
+
+html[data-post-theme="paper"] .friend-card {
+    border-color: rgba(70, 50, 20, 0.18);
+    background: rgba(234, 221, 194, 0.86);
+    color: rgba(45, 35, 22, 0.9);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 24px 48px -28px rgba(40, 25, 0, 0.25);
+}
+
+html[data-post-theme="paper"] .friend-card:hover {
+    border-color: rgba(139, 90, 32, 0.38);
+    background: rgba(238, 226, 199, 0.94);
+}
+
+html[data-post-theme="paper"] .friend-avatar {
+    border-color: rgba(70, 50, 20, 0.2);
+}
+
+html[data-post-theme="texture"] .friends-kicker,
+html[data-post-theme="texture"] .friends-dek,
+html[data-post-theme="texture"] .friend-description,
+html[data-post-theme="texture"] .friend-body h2 span {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+html[data-post-theme="texture"] .friends-title,
+html[data-post-theme="texture"] .friend-body h2 {
+    color: #ffffff;
+}
+
+html[data-post-theme="texture"] .friend-tips {
+    color: rgba(255, 255, 255, 0.88);
+}
+
+html[data-post-theme="texture"] .friend-card {
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(18, 18, 24, 0.32);
+}
+
 /* ----------------------------------------------------------------------------
  * Planet-tinted accents (driven by --planet-accent on <html>)
  * -------------------------------------------------------------------------- */
@@ -273,6 +462,7 @@ html.dark a:not(.button-link):hover {
     }
     html[data-page="about"]:not(.is-navigating) #planet-stage,
     html[data-page="contact"]:not(.is-navigating) #planet-stage,
+    html[data-page="friends"]:not(.is-navigating) #planet-stage,
     html[data-page="tags"]:not(.is-navigating) #planet-stage {
         transform: translate3d(
                 calc((1 - var(--planet-progress, 0)) * 22vw),
@@ -280,6 +470,20 @@ html.dark a:not(.button-link):hover {
                 0
             )
             scale(calc(0.35 + 2.85 * var(--planet-progress, 0)));
+    }
+
+    .friends-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .friends-header {
+        padding: 3rem 0.5rem 1.5rem;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 980px) {
+    .friends-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 

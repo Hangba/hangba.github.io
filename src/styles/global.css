@@ -128,6 +128,10 @@ html.dark[data-post-theme="texture"]:not([data-page="home"]) {
   background-position: center;
   background-attachment: fixed;
 }
+html.dark[data-planet-id="mars"][data-post-theme="texture"]:not([data-page="home"]) {
+  background-size: auto, auto, 135% auto;
+  background-position: center, center, center 46%;
+}
 html.dark[data-post-theme="texture"]:not([data-page="home"]) body {
   position: relative;
   isolation: isolate;
@@ -139,8 +143,8 @@ html.dark[data-post-theme="texture"]:not([data-page="home"]) body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  backdrop-filter: blur(1.2px) saturate(0.96);
-  -webkit-backdrop-filter: blur(1.2px) saturate(0.96);
+  backdrop-filter: blur(0.45px) saturate(0.98);
+  -webkit-backdrop-filter: blur(0.45px) saturate(0.98);
 }
 html.dark[data-post-theme="texture"]:not([data-page="home"]) body::after {
   content: "";

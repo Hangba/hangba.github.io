@@ -79,6 +79,10 @@ const siteConfig: SiteConfig = {
             href: withBase('/tags')
         },
         {
+            text: 'Friends',
+            href: withBase('/friends')
+        },
+        {
             text: 'About',
             href: withBase('/about')
         },
@@ -123,7 +127,7 @@ const siteConfig: SiteConfig = {
     },
     about: {
         title: 'About',
-        text: 'An undergraduate student majoring in Space Science and Technology at Harbin Institute of Technology, Shenzhen.',
+        text: 'An undergraduate student major in Space Science and Technology at Harbin Institute of Technology, Shenzhen, with a concentration in planetary science.',
     },
     contactInfo: {
         title: 'Contact',

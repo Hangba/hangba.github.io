@@ -1,0 +1,100 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import siteConfig from "../site.config";
+
+const friends = [
+  {
+    title: "LifeCheckpoint",
+    cname: "梓刻",
+    description: "AI, Infra",
+    website: "https://lifecheckpoint.github.io",
+    avatar: "https://avatars.githubusercontent.com/u/59783101?v=4",
+    tips: "沧溟如簇，弦绝冬江",
+  },
+];
+---
+
+<MainLayout activePage="friends" pageTitle={siteConfig.title + " | Friends"}>
+  <div class="page-content landing-content friends-wrap" data-reveal-root>
+    <header class="friends-header" data-reveal style="--reveal-delay:0ms">
+      <span class="friends-kicker">The Orbit &mdash; Links</span>
+      <h1 class="friends-title">Friends</h1>
+      <p class="friends-dek">Small signals from nearby stars.</p>
+    </header>
+
+    <div class="friends-grid" data-reveal style="--reveal-delay:160ms">
+      {
+        friends.map((friend) => (
+          <a class="friend-card" href={friend.website} target="_blank" rel="noreferrer">
+            <img class="friend-avatar" src={friend.avatar} alt={`${friend.title} avatar`} />
+            <div class="friend-body">
+              <h2>
+                {friend.title}
+                <span>{friend.cname}</span>
+              </h2>
+              <p class="friend-description">{friend.description}</p>
+              <p class="friend-tips">{friend.tips}</p>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</MainLayout>
+
+<style is:inline>
+  .friends-wrap {
+    position: relative;
+    z-index: 3;
+  }
+
+  .friends-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    max-width: 72rem;
+    margin: 1.5rem auto 5rem;
+  }
+
+  .friend-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 1.25rem;
+    background: rgba(12, 12, 16, 0.34);
+    color: rgba(245, 241, 234, 0.86);
+    text-decoration: none;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 24px 48px -32px rgba(0, 0, 0, 0.68);
+    backdrop-filter: blur(20px) saturate(135%);
+    -webkit-backdrop-filter: blur(20px) saturate(135%);
+  }
+
+  .friend-body {
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+  }
+
+  .friend-body h2 {
+    justify-content: center;
+    flex-wrap: nowrap;
+    text-align: center;
+  }
+
+  @media (min-width: 641px) and (max-width: 980px) {
+    .friends-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .friends-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
