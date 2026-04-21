@@ -3,7 +3,7 @@ import type { GetStaticPathsOptions, Page } from "astro";
 import { type CollectionEntry, getCollection } from "astro:content";
 import { Image } from "astro:assets";
 import Pagination from "../../components/Pagination.astro";
-import { sortItemsByDateDesc, withBase } from "../../utils/helpers";
+import { formatReadingTime, sortItemsByDateDesc, withBase } from "../../utils/helpers";
 import MainLayout from "../../layouts/MainLayout.astro";
 import siteConfig from "../../site.config";
 import FormattedDate from "../../components/FormattedDate.astro";
@@ -54,6 +54,7 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
                 {author && (
                   <span class="magazine-byline">by {author}</span>
                 )}
+                <span class="magazine-reading-time">{formatReadingTime(post)}</span>
               </div>
               <a class="magazine-link" href={withBase("/blog/" + post.id)}>
                 <h2 class="magazine-title">{title}</h2>
@@ -212,7 +213,7 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
     align-items: baseline;
     gap: 1rem;
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     letter-spacing: 0.35em;
     text-transform: uppercase;
     color: rgba(245, 241, 234, 0.58);
@@ -222,7 +223,7 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
     color: var(--planet-accent, #e2d1c3);
     font-weight: 500;
     letter-spacing: 0.1em;
-    font-size: 0.9rem;
+    font-size: 0.84rem;
   }
 
   .magazine-date {
@@ -233,7 +234,14 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
     font-style: italic;
     text-transform: none;
     letter-spacing: 0.08em;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
+  }
+
+  .magazine-reading-time {
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0.08em;
+    font-size: 0.74rem;
   }
 
   .magazine-link {
@@ -245,9 +253,9 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
   .magazine-title {
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
     font-weight: 400;
-    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    font-size: clamp(1.6rem, 3.1vw, 2.25rem);
     line-height: 1.1;
-    margin: 0.3rem 0 0.75rem;
+    margin: 0.2rem 0 0.45rem;
     color: #f5f1ea;
     letter-spacing: -0.01em;
     transition: color 240ms ease;
@@ -260,16 +268,16 @@ const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
   .magazine-excerpt {
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
     font-style: italic;
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.7;
     color: rgba(245, 241, 234, 0.78);
-    margin: 0 0 0.9rem;
+    margin: 0 0 0.5rem;
   }
 
   .magazine-more {
     display: inline-block;
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     letter-spacing: 0.42em;
     text-transform: uppercase;
     color: var(--planet-accent, #e2d1c3);

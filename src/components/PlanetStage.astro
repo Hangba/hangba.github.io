@@ -6,6 +6,9 @@ const { planet } = Astro.props;
 const planetJson = JSON.stringify(planet);
 ---
 
+<div id="star-stage" aria-hidden="true" transition:persist="star-stage">
+    <canvas id="star-canvas"></canvas>
+</div>
 <div
     id="planet-stage"
     data-planet={planetJson}

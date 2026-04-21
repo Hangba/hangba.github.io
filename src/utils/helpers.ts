@@ -33,3 +33,20 @@ export function getPostsByTag(posts: CollectionEntry<'blogs'>[], tagId: string) 
     const filteredPosts: CollectionEntry<'blogs'>[] = posts.filter((post) => (post.data.tags || []).map((tag) => createSlugFromTitle(tag)).includes(tagId));
     return filteredPosts;
 }
+
+export function getReadingTimeMinutes(post: CollectionEntry<'blogs'>): number {
+    const plainText = post.body
+        .replace(/```[\s\S]*?```/g, ' ')
+        .replace(/`[^`]*`/g, ' ')
+        .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
+        .replace(/\[[^\]]*\]\([^)]+\)/g, ' ')
+        .replace(/[#>*_\-~[\]()]/g, ' ');
+    const latinWords = plainText.match(/[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)*/g)?.length ?? 0;
+    const cjkChars = plainText.match(/[\u3400-\u9fff\uf900-\ufaff]/g)?.length ?? 0;
+    const estimatedWords = latinWords + cjkChars / 2;
+    return Math.max(1, Math.ceil(estimatedWords / 225));
+}
+
+export function formatReadingTime(post: CollectionEntry<'blogs'>): string {
+    return `~${getReadingTimeMinutes(post)} min read`;
+}

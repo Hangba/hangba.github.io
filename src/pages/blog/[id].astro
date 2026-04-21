@@ -2,6 +2,7 @@
 import "../../styles/global.css";
 import { Image } from "astro:assets";
 import {
+  formatReadingTime,
   sortItemsByDateDesc,
   createSlugFromTitle,
   withBase,
@@ -57,6 +58,8 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
         </span>
         <span class="post-meta-dot" aria-hidden="true">&middot;</span>
         <time class="post-date">{dateLabel}</time>
+        <span class="post-meta-dot" aria-hidden="true">&middot;</span>
+        <span class="post-reading-time">{formatReadingTime(post)}</span>
       </div>
       <div class="post-rule" aria-hidden="true" data-reveal style="--reveal-delay:200ms">
         <span class="post-rule-ornament">&#10070;</span>
@@ -142,7 +145,7 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   .post-title {
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
     font-weight: 400;
-    font-size: clamp(2.25rem, 5vw, 3.75rem);
+    font-size: clamp(2.05rem, 4.6vw, 3.45rem);
     line-height: 1.1;
     letter-spacing: -0.015em;
     margin: 0 auto 1.25rem;
@@ -157,7 +160,7 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
     justify-content: center;
     gap: 0.75rem;
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     letter-spacing: 0.15em;
     color: rgba(245, 241, 234, 0.68);
     flex-wrap: wrap;
@@ -166,13 +169,13 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   .post-byline {
     text-transform: uppercase;
     letter-spacing: 0.3em;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
   }
   .post-byline em {
     font-style: italic;
     letter-spacing: 0.05em;
     text-transform: none;
-    font-size: 0.9rem;
+    font-size: 0.84rem;
     color: var(--planet-accent, #e2d1c3);
   }
 
@@ -183,7 +186,14 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   .post-date {
     font-style: italic;
     letter-spacing: 0.05em;
-    font-size: 0.92rem;
+    font-size: 0.86rem;
+    color: rgba(245, 241, 234, 0.8);
+  }
+
+  .post-reading-time {
+    font-style: italic;
+    letter-spacing: 0.05em;
+    font-size: 0.86rem;
     color: rgba(245, 241, 234, 0.8);
   }
 
@@ -353,6 +363,9 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   :global(html[data-post-theme="paper"]) .post-date {
     color: rgba(60, 45, 20, 0.88);
   }
+  :global(html[data-post-theme="paper"]) .post-reading-time {
+    color: rgba(60, 45, 20, 0.88);
+  }
   :global(html[data-post-theme="paper"]) .post-rule,
   :global(html[data-post-theme="paper"]) .post-footer-rule {
     color: #8b5a20;
@@ -437,6 +450,7 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   }
   :global(html[data-post-theme="texture"]) .post-byline,
   :global(html[data-post-theme="texture"]) .post-date,
+  :global(html[data-post-theme="texture"]) .post-reading-time,
   :global(html[data-post-theme="texture"]) .post-byline em {
     color: rgba(255, 255, 255, 0.88);
   }
@@ -473,7 +487,7 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   .blog-body {
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
     line-height: 1.9;
-    font-size: clamp(1.1rem, 1.35vw, 1.25rem);
+    font-size: clamp(1.02rem, 1.24vw, 1.16rem);
     color: rgba(245, 241, 234, 0.88);
   }
 
@@ -484,7 +498,7 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   .blog-body :global(h2) {
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
     font-weight: 400;
-    font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+    font-size: clamp(1.38rem, 2.2vw, 1.76rem);
     letter-spacing: -0.005em;
     margin: 2.5rem 0 1rem;
     color: #f5f1ea;
@@ -496,7 +510,7 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
     font-family: var(--font-serif, "New Computer Modern Roman", serif);
     font-weight: 400;
     font-style: italic;
-    font-size: 1.25rem;
+    font-size: 1.16rem;
     margin: 2rem 0 0.75rem;
     color: var(--planet-accent, #e2d1c3);
   }

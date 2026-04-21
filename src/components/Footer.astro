@@ -66,4 +66,21 @@ const currentYear = new Date().getFullYear();
   :global(html[data-post-theme="texture"]) .footer-icon:hover {
     color: #ffffff !important;
   }
+
+  :global(html[data-page="home"]) .footer-copy,
+  :global(html[data-page="home"][data-post-theme="paper"]) .footer-copy {
+    color: rgba(245, 241, 234, 0.78);
+  }
+  :global(html[data-page="home"]) .footer-copyright strong,
+  :global(html[data-page="home"][data-post-theme="paper"]) .footer-copyright strong {
+    color: #f5f1ea;
+  }
+  :global(html[data-page="home"]) .footer-icon,
+  :global(html[data-page="home"][data-post-theme="paper"]) .footer-icon {
+    color: rgba(245, 241, 234, 0.74);
+  }
+  :global(html[data-page="home"]) .footer-icon:hover,
+  :global(html[data-page="home"][data-post-theme="paper"]) .footer-icon:hover {
+    color: #f5f1ea !important;
+  }
 </style>

@@ -25,67 +25,11 @@ const titleLines = siteConfig.hero?.titleLines;
         )
     }
     <div class="hero-sub-frame" data-reveal style="--reveal-delay:240ms">
-        <span class="hero-sub-label">Intro</span>
         <p class="hero-sub">
             {siteConfig.hero?.text}
         </p>
     </div>
-    <div class="planet-cycler" data-reveal style="--reveal-delay:520ms">
-        <span class="planet-cycler-label">
-            <span class="planet-cycler-dot" aria-hidden="true"></span>
-            当前:<strong id="planet-cycler-name">{planet.name}</strong>
-        </span>
-        <button
-            type="button"
-            id="planet-cycler-btn"
-            class="planet-cycler-btn"
-        >
-            换一颗 →
-        </button>
-    </div>
 </section>
-
-<script>
-    import { planets } from "../data/planets";
-
-    function bindCycler() {
-        const btn = document.getElementById(
-            "planet-cycler-btn"
-        ) as HTMLButtonElement | null;
-        const nameEl = document.getElementById("planet-cycler-name");
-        const stage = document.getElementById("planet-stage");
-        if (!btn || !nameEl || !stage) return;
-        if (btn.dataset.bound === "1") return;
-        btn.dataset.bound = "1";
-
-        let idx = 0;
-        try {
-            const persistedId = sessionStorage.getItem("planet:currentId");
-            const current = persistedId
-                ? { id: persistedId }
-                : JSON.parse(stage.dataset.planet || "{}");
-            const found = planets.findIndex((p) => p.id === current.id);
-            if (found >= 0) idx = found;
-        } catch {
-            /* fall back to 0 */
-        }
-
-        nameEl.textContent = planets[idx]?.name ?? "";
-
-        btn.addEventListener("click", () => {
-            idx = (idx + 1) % planets.length;
-            const next = planets[idx];
-            const fn = (
-                window as unknown as { __switchPlanet?: (p: typeof next) => void }
-            ).__switchPlanet;
-            if (fn) fn(next);
-            nameEl.textContent = next.name;
-        });
-    }
-
-    bindCycler();
-    document.addEventListener("astro:page-load", bindCycler);
-</script>
 
 <style>
     .hero {
@@ -140,49 +84,8 @@ const titleLines = siteConfig.hero?.titleLines;
         position: relative;
         max-width: 38ch;
         margin-left: auto;
-        padding: 1.6rem 1.9rem 1.5rem;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 2px;
-        background: rgba(12, 12, 16, 0.35);
-        backdrop-filter: blur(20px) saturate(140%);
-        -webkit-backdrop-filter: blur(20px) saturate(140%);
-        box-shadow:
-            0 1px 0 rgba(255, 255, 255, 0.06) inset,
-            0 18px 40px -20px rgba(0, 0, 0, 0.55);
+        padding: 1.6rem 0;
         text-align: left;
-    }
-
-    .hero-sub-frame::before,
-    .hero-sub-frame::after {
-        content: "";
-        position: absolute;
-        left: 1.9rem;
-        right: 1.9rem;
-        height: 1px;
-        background: linear-gradient(
-            to right,
-            transparent,
-            rgba(255, 255, 255, 0.18),
-            transparent
-        );
-    }
-    .hero-sub-frame::before {
-        top: 0.55rem;
-    }
-    .hero-sub-frame::after {
-        bottom: 0.55rem;
-    }
-
-    .hero-sub-label {
-        display: block;
-        font-size: 0.68rem;
-        letter-spacing: 0.5em;
-        text-transform: uppercase;
-        color: var(--planet-accent, #e2d1c3);
-        margin-bottom: 0.9rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        font-weight: 400;
     }
 
     .hero-sub {
@@ -193,54 +96,6 @@ const titleLines = siteConfig.hero?.titleLines;
         margin: 0;
         letter-spacing: 0.02em;
         font-style: italic;
-    }
-
-    .planet-cycler {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.9rem;
-        padding: 0.5rem 0.5rem 0.5rem 1rem;
-        margin-top: 1rem;
-        margin-left: auto;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 999px;
-        background: rgba(0, 0, 0, 0.3);
-        backdrop-filter: blur(12px);
-        font-size: 0.75rem;
-        letter-spacing: 0.1em;
-        color: rgba(245, 241, 234, 0.7);
-    }
-    .planet-cycler-label {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.55rem;
-    }
-    .planet-cycler-label strong {
-        font-weight: 400;
-        color: var(--planet-accent, #e2d1c3);
-    }
-    .planet-cycler-dot {
-        width: 0.55rem;
-        height: 0.55rem;
-        border-radius: 50%;
-        background: var(--planet-accent, #e2d1c3);
-        box-shadow: 0 0 10px var(--planet-accent, #e2d1c3);
-        transition: background 600ms ease, box-shadow 600ms ease;
-    }
-    .planet-cycler-btn {
-        cursor: pointer;
-        border: 0;
-        background: rgba(255, 255, 255, 0.08);
-        color: inherit;
-        font: inherit;
-        letter-spacing: inherit;
-        padding: 0.4rem 0.9rem;
-        border-radius: 999px;
-        transition: background 200ms ease, color 200ms ease;
-    }
-    .planet-cycler-btn:hover {
-        background: var(--planet-accent, #e2d1c3);
-        color: #0a0a0a;
     }
 
     @media (max-width: 768px) {
@@ -258,10 +113,6 @@ const titleLines = siteConfig.hero?.titleLines;
             align-items: center;
         }
         .hero-sub-frame {
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .planet-cycler {
             margin-left: auto;
             margin-right: auto;
         }

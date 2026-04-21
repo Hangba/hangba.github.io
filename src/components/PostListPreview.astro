@@ -2,7 +2,7 @@
 import { type CollectionEntry } from "astro:content";
 import ArrowRight from "../icons/ArrowRight.astro";
 import FormattedDate from "./FormattedDate.astro";
-import { withBase } from "../utils/helpers";
+import { formatReadingTime, withBase } from "../utils/helpers";
 
 type Props = {
   post: CollectionEntry<"blogs">;
@@ -21,7 +21,11 @@ const TitleTag = headingLevel;
 >
   <div class="grow">
     <TitleTag class="sigmar-ff">{title}</TitleTag>
-    <FormattedDate date={pubDate} />
+    <div class="post-list-meta">
+      <FormattedDate date={pubDate} />
+      <span aria-hidden="true">&middot;</span>
+      <span>{formatReadingTime(post)}</span>
+    </div>
     {description && <p>{description}</p>}
   </div>
   <div
@@ -30,3 +34,14 @@ const TitleTag = headingLevel;
     Read Post <ArrowRight class="fill-current w-4 h-4" />
   </div>
 </a>
+
+<style>
+  .post-list-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(245, 241, 234, 0.68);
+    font-size: 0.9rem;
+    font-weight: 300;
+  }
+</style>

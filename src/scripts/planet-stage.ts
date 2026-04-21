@@ -14,12 +14,22 @@ type StageState = {
     ambientLight: THREE.AmbientLight;
     sun: THREE.DirectionalLight;
     renderer: THREE.WebGLRenderer;
+    starRenderer: THREE.WebGLRenderer;
     camera: THREE.PerspectiveCamera;
+    starCamera: THREE.PerspectiveCamera;
     scene: THREE.Scene;
+    starScene: THREE.Scene;
     loader: THREE.TextureLoader;
     stageEl: HTMLElement;
+    starStageEl: HTMLElement;
     planet: Planet;
+    stars?: THREE.Points;
+    targetStarsX?: number;
+    targetStarsY?: number;
     hqLoaded: boolean;
+    onPlanetClick?: (event: MouseEvent) => void;
+    onPointerMove?: (event: PointerEvent) => void;
+    onPointerLeave?: () => void;
     onVisibilityChange?: () => void;
     onWindowResize?: () => void;
     onViewportResize?: () => void;
@@ -33,8 +43,12 @@ const NAVIGATE_DURATION = 900;
 const CONTENT_ENTER_DURATION = 220;
 const PLANET_SWITCH_OUT_MS = 360;
 const PLANET_SWITCH_IN_MS = 920;
+const STAR_PARALLAX_X = 0.28;
+const STAR_PARALLAX_Y = 0.18;
 let enteringClassTimer: number | undefined;
 let planetSwitching = false;
+const planetClickRaycaster = new THREE.Raycaster();
+const planetClickPointer = new THREE.Vector2();
 
 function pathToPage(pathname: string): string {
     if (pathname === "/" || pathname === "") return "home";
@@ -223,11 +237,14 @@ function applyCameraFill(s: StageState) {
 }
 
 function syncRendererSize(s: StageState) {
-    const w = s.stageEl.clientWidth || window.innerWidth;
-    const h = s.stageEl.clientHeight || window.innerHeight;
+    const w = s.starStageEl.clientWidth || window.innerWidth;
+    const h = s.starStageEl.clientHeight || window.innerHeight;
     if (w <= 0 || h <= 0) return;
     s.renderer.setSize(w, h, false);
+    s.starRenderer.setSize(w, h, false);
     applyCameraFill(s);
+    s.starCamera.aspect = w / h;
+    s.starCamera.updateProjectionMatrix();
 }
 
 /**
@@ -409,13 +426,36 @@ async function switchPlanet(nextPlanet: Planet) {
     }
 }
 
+function getNextPlanet(currentPlanet: Planet): Planet | null {
+    const currentIndex = planets.findIndex((p) => p.id === currentPlanet.id);
+    if (currentIndex === -1) return null;
+    return planets[(currentIndex + 1) % planets.length];
+}
+
+function didClickPlanet(event: MouseEvent, s: StageState): boolean {
+    const rect = s.stageEl.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return false;
+
+    planetClickPointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    planetClickPointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+    planetClickRaycaster.setFromCamera(planetClickPointer, s.camera);
+
+    const hitTargets: THREE.Object3D[] = [s.sphere];
+    if (s.cloud) hitTargets.push(s.cloud);
+    if (s.ring) hitTargets.push(s.ring);
+
+    return planetClickRaycaster.intersectObjects(hitTargets, false).length > 0;
+}
+
 function startThree(stage: HTMLElement, planet: Planet) {
     if (state) return;
     const canvas = stage.querySelector("canvas") as HTMLCanvasElement | null;
-    if (!canvas) return;
+    const starStage = document.getElementById("star-stage") as HTMLElement | null;
+    const starCanvas = starStage?.querySelector("canvas") as HTMLCanvasElement | null;
+    if (!canvas || !starStage || !starCanvas) return;
 
-    const w = stage.clientWidth || window.innerWidth;
-    const h = stage.clientHeight || window.innerHeight;
+    const w = starStage.clientWidth || window.innerWidth;
+    const h = starStage.clientHeight || window.innerHeight;
 
     const renderer = new THREE.WebGLRenderer({
         canvas,
@@ -427,11 +467,24 @@ function startThree(stage: HTMLElement, planet: Planet) {
     renderer.setSize(w, h, false);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
 
+    const starRenderer = new THREE.WebGLRenderer({
+        canvas: starCanvas,
+        alpha: true,
+        antialias: true,
+        powerPreference: "high-performance",
+    });
+    starRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    starRenderer.setSize(w, h, false);
+    starRenderer.outputColorSpace = THREE.SRGBColorSpace;
+
     const scene = new THREE.Scene();
+    const starScene = new THREE.Scene();
 
     const fillFactor = planet.ringMap ? RING_SPHERE_FILL : SPHERE_FILL;
     const camera = new THREE.PerspectiveCamera(CAMERA_FOV, w / h, 0.1, 100);
     camera.position.set(0, 0, cameraDistanceFor(w / h, fillFactor));
+    const starCamera = new THREE.PerspectiveCamera(CAMERA_FOV, w / h, 0.1, 300);
+    starCamera.position.set(0, 0, 1);
 
     const loader = new THREE.TextureLoader();
     const colorMap = loader.load(planet.colorMap, () => {
@@ -470,6 +523,24 @@ function startThree(stage: HTMLElement, planet: Planet) {
     const ringBuilt = buildRing(loader, renderer, planet);
     if (ringBuilt) bodyGroup.add(ringBuilt.mesh);
 
+    
+    const starsGeo = new THREE.BufferGeometry();
+    const starsCount = Math.floor(2000 + Math.random() * 1000);
+    const posArray = new Float32Array(starsCount * 3);
+    for(let i = 0; i < starsCount * 3; i++) {
+        posArray[i] = (Math.random() - 0.5) * 200;
+    }
+    starsGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const starsMat = new THREE.PointsMaterial({
+        size: 0.22,
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.96,
+        sizeAttenuation: true
+    });
+    const starPoints = new THREE.Points(starsGeo, starsMat);
+    starScene.add(starPoints);
+
     const ambientLight = new THREE.AmbientLight(0xffffff, planet.ambientLight);
     scene.add(ambientLight);
     const sun = new THREE.DirectionalLight(0xfff5e8, planet.sunIntensity);
@@ -489,12 +560,19 @@ function startThree(stage: HTMLElement, planet: Planet) {
         ambientLight,
         sun,
         renderer,
+        starRenderer,
         camera,
+        starCamera,
         scene,
+        starScene,
         loader,
         stageEl: stage,
+        starStageEl: starStage,
         planet,
         hqLoaded: false,
+        stars: starPoints,
+        targetStarsX: 0,
+        targetStarsY: 0,
     };
 
     const tick = () => {
@@ -506,7 +584,12 @@ function startThree(stage: HTMLElement, planet: Planet) {
                     state.planet.cloudRotationSpeed ??
                     state.planet.rotationSpeed * 1.3;
             }
+            if (state.stars) {
+                state.stars.rotation.y += (state.targetStarsX! - state.stars.rotation.y) * 0.05;
+                state.stars.rotation.x += (state.targetStarsY! - state.stars.rotation.x) * 0.05;
+            }
         }
+        state.starRenderer.render(state.starScene, state.starCamera);
         state.renderer.render(state.scene, state.camera);
         state.raf = requestAnimationFrame(tick);
     };
@@ -517,7 +600,39 @@ function startThree(stage: HTMLElement, planet: Planet) {
         if (document.hidden) cancelAnimationFrame(state.raf);
         else tick();
     };
+
     document.addEventListener("visibilitychange", onVisibilityChange);
+
+    const onPlanetClick = (event: MouseEvent) => {
+        if (!state || planetSwitching || !didClickPlanet(event, state)) return;
+
+        const nextPlanet = getNextPlanet(state.planet);
+        if (!nextPlanet) return;
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        switchPlanet(nextPlanet);
+    };
+    window.addEventListener("click", onPlanetClick, { capture: true });
+
+    const onPointerMove = (event: PointerEvent) => {
+        if (!state || !state.stars || reduced()) return;
+
+        const x = (event.clientX / window.innerWidth) * 2 - 1;
+        const y = (event.clientY / window.innerHeight) * 2 - 1;
+        state.targetStarsY = x * STAR_PARALLAX_X;
+        state.targetStarsX = y * STAR_PARALLAX_Y;
+    };
+
+    const onPointerLeave = () => {
+        if (!state || reduced()) return;
+        state.targetStarsX = 0;
+        state.targetStarsY = 0;
+    };
+
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("pointerleave", onPointerLeave, { passive: true });
+
 
     let resizeRaf = 0;
     const scheduleResize = () => {
@@ -542,6 +657,9 @@ function startThree(stage: HTMLElement, planet: Planet) {
     stageResizeObserver.observe(stage);
 
     state.onVisibilityChange = onVisibilityChange;
+    state.onPlanetClick = onPlanetClick;
+    state.onPointerMove = onPointerMove;
+    state.onPointerLeave = onPointerLeave;
     state.onWindowResize = scheduleResize;
     state.onViewportResize = scheduleResize;
     state.stageResizeObserver = stageResizeObserver;
@@ -679,6 +797,18 @@ function destroyStage() {
         if (s.onVisibilityChange) {
             document.removeEventListener("visibilitychange", s.onVisibilityChange);
         }
+        if (s.onPlanetClick) {
+            window.removeEventListener("click", s.onPlanetClick, { capture: true });
+        }
+        if (s.onPointerMove) {
+            window.removeEventListener("pointermove", s.onPointerMove);
+        }
+        if (s.onPointerLeave) {
+            window.removeEventListener("pointerleave", s.onPointerLeave);
+        }
+        if (s.stars) {
+            disposeMesh(s.stars as unknown as THREE.Mesh);
+        }
         if (s.onWindowResize) {
             window.removeEventListener("resize", s.onWindowResize);
         }
@@ -695,6 +825,7 @@ function destroyStage() {
         if (s.material.map) s.material.map.dispose();
         s.material.dispose();
         s.renderer.dispose();
+        s.starRenderer.dispose();
     } catch {
         /* ignore */
     }
@@ -703,10 +834,16 @@ function destroyStage() {
 
 function init() {
     const stage = document.getElementById("planet-stage");
-    if (!stage) {
+    const starStage = document.getElementById("star-stage");
+    if (!stage || !starStage) {
         if (state) destroyStage();
         return;
     }
+
+    // `astro:before-preparation` hides the persistent stage when leaving home.
+    // When we come back, clear the inline display override before reusing it.
+    stage.style.removeProperty("display");
+
     if (state && state.stageEl !== stage) {
         destroyStage();
     }
@@ -789,6 +926,9 @@ document.addEventListener("astro:after-swap", () => {
     const root = document.documentElement;
     root.classList.remove("is-navigating");
     root.classList.add("is-entering");
+    if (window.location.pathname === "/") {
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
     reapplyThemeFromStage();
     refreshScrollOnNav();
     runHomePlanetIntro();
