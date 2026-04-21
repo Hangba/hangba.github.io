@@ -37,7 +37,8 @@ type Props = {
 
 const { post, prevPost, nextPost } = Astro.props;
 const { title, pubDate, author, tags = [], image } = post.data;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
+const tocItems = (headings ?? []).filter((h) => h.depth >= 2 && h.depth <= 3);
 const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   year: "numeric",
   month: "long",
@@ -75,10 +76,50 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
       )
     }
 
-    <div class="blog-body-frame text-left" data-reveal style="--reveal-delay:320ms">
-      <div class="blog-body">
-        <Content />
+    <div class="post-reading-shell" data-reveal style="--reveal-delay:320ms">
+      <aside class="post-side post-side-left" aria-label="Search in article">
+        <div class="post-side-panel">
+          <p class="post-side-title">Signal Search</p>
+          <label class="sr-only" for="post-search-input">Search this article</label>
+          <input
+            id="post-search-input"
+            class="post-search-input"
+            type="search"
+            placeholder="Search this dispatch..."
+            autocomplete="off"
+          />
+          <ul id="post-search-results" class="post-search-results" aria-live="polite">
+            <li class="post-search-empty">Type to search inside this article</li>
+          </ul>
+        </div>
+      </aside>
+
+      <div class="blog-body-frame text-left">
+        <div class="blog-body" id="post-body-content">
+          <Content />
+        </div>
       </div>
+
+      <aside class="post-side post-side-right" aria-label="Article outline">
+        <div class="post-side-panel">
+          <p class="post-side-title">Structure</p>
+          <nav id="post-outline" class="post-outline" aria-label="Table of contents">
+            {
+              tocItems.length > 0 ? (
+                <ol>
+                  {tocItems.map((item) => (
+                    <li class:list={["outline-item", `depth-${item.depth}`]}>
+                      <a href={`#${item.slug}`}>{item.text}</a>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p class="post-outline-empty">No section headings found.</p>
+              )
+            }
+          </nav>
+        </div>
+      </aside>
     </div>
 
     {tags && tags.length > 0 && (
@@ -120,10 +161,118 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   </article>
 </MainLayout>
 
+<script is:inline>
+  const initPostDesktopPanels = () => {
+    const shell = document.querySelector(".post-reading-shell");
+    if (!shell) return;
+
+    const body = shell.querySelector("#post-body-content");
+    const input = shell.querySelector("#post-search-input");
+    const results = shell.querySelector("#post-search-results");
+    const outline = shell.querySelector("#post-outline");
+
+    if (!(body instanceof HTMLElement)) return;
+    if (!(input instanceof HTMLInputElement)) return;
+    if (!(results instanceof HTMLUListElement)) return;
+
+    const searchTargets = Array.from(
+      body.querySelectorAll("h2, h3, h4, p, li, blockquote")
+    ).map((node, index) => {
+      const el = node;
+      const text = el.textContent?.trim() || "";
+      if (!text) return null;
+      if (!el.id) {
+        const seed = text
+          .toLowerCase()
+          .replace(/[^a-z0-9\u4e00-\u9fa5\s-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-")
+          .slice(0, 40);
+        el.id = `post-node-${seed || "section"}-${index}`;
+      }
+      return { el, text, id: el.id };
+    }).filter(Boolean);
+
+    const clearResults = (message) => {
+      results.innerHTML = "";
+      const li = document.createElement("li");
+      li.className = "post-search-empty";
+      li.textContent = message;
+      results.appendChild(li);
+    };
+
+    const jumpToElement = (el) => {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.classList.add("post-search-hit");
+      window.setTimeout(() => el.classList.remove("post-search-hit"), 1400);
+    };
+
+    input.addEventListener("input", () => {
+      const query = input.value.trim().toLowerCase();
+      if (query.length < 2) {
+        clearResults("Type at least 2 characters");
+        return;
+      }
+
+      const matches = searchTargets
+        .filter((item) => item.text.toLowerCase().includes(query))
+        .slice(0, 8);
+
+      if (matches.length === 0) {
+        clearResults("No matching fragments in this article");
+        return;
+      }
+
+      results.innerHTML = "";
+      matches.forEach((item) => {
+        const li = document.createElement("li");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "post-search-result-btn";
+        btn.textContent = item.text;
+        btn.addEventListener("click", () => jumpToElement(item.el));
+        li.appendChild(btn);
+        results.appendChild(li);
+      });
+    });
+
+    if (outline instanceof HTMLElement) {
+      const links = Array.from(outline.querySelectorAll("a[href^='#']"));
+      if (links.length > 0 && "IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              const id = entry.target.id;
+              links.forEach((link) => {
+                const active = link.getAttribute("href") === `#${id}`;
+                link.classList.toggle("is-current", active);
+              });
+            });
+          },
+          { rootMargin: "-25% 0px -60% 0px", threshold: 0.01 }
+        );
+
+        links.forEach((link) => {
+          const targetId = link.getAttribute("href")?.slice(1);
+          if (!targetId) return;
+          const target = document.getElementById(targetId);
+          if (target) observer.observe(target);
+        });
+      }
+    }
+  };
+
+  initPostDesktopPanels();
+  document.addEventListener("astro:page-load", initPostDesktopPanels);
+</script>
+
 <style>
   .post-wrap {
     position: relative;
     z-index: 3;
+    max-width: none !important;
+    width: 100%;
   }
 
   .post-header {
@@ -269,6 +418,131 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
       0 1px 0 rgba(255, 255, 255, 0.06) inset,
       0 24px 48px -28px rgba(0, 0, 0, 0.6);
     text-align: left;
+  }
+
+  .post-reading-shell {
+    max-width: 44rem;
+    margin: 2rem auto 2.5rem;
+  }
+
+  .post-side {
+    display: none;
+  }
+
+  .post-side-panel {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(12, 12, 16, 0.34);
+    backdrop-filter: blur(20px) saturate(130%);
+    -webkit-backdrop-filter: blur(20px) saturate(130%);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.08) inset,
+      0 18px 34px -26px rgba(0, 0, 0, 0.72);
+    padding: 1rem 0.95rem;
+  }
+
+  .post-side-title {
+    margin: 0 0 0.7rem;
+    font-size: 0.68rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--planet-accent, #e2d1c3);
+  }
+
+  :global(html[data-post-theme="texture"]) .post-side-title {
+    color: rgba(245, 245, 250, 0.82);
+  }
+
+  .post-search-input {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0, 0, 0, 0.2);
+    color: rgba(245, 241, 234, 0.95);
+    padding: 0.5rem 0.6rem;
+    font-size: 0.88rem;
+    margin-bottom: 0.65rem;
+    outline: none;
+  }
+
+  .post-search-input:focus {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .post-search-results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+    max-height: 48vh;
+    overflow: auto;
+  }
+
+  .post-search-empty {
+    font-size: 0.78rem;
+    color: rgba(245, 241, 234, 0.58);
+  }
+
+  .post-search-result-btn {
+    width: 100%;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(245, 241, 234, 0.92);
+    padding: 0.35rem 0.45rem;
+    font-size: 0.78rem;
+    cursor: pointer;
+  }
+
+  .post-search-result-btn:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .post-outline ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+    max-height: 56vh;
+    overflow: auto;
+  }
+
+  .post-outline .outline-item a {
+    display: block;
+    color: rgba(245, 241, 234, 0.78);
+    text-decoration: none;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    border-left: 1px solid transparent;
+    padding: 0.2rem 0 0.2rem 0.5rem;
+  }
+
+  .post-outline .outline-item.depth-3 a {
+    padding-left: 1rem;
+    font-size: 0.76rem;
+    opacity: 0.9;
+  }
+
+  .post-outline .outline-item a:hover,
+  .post-outline .outline-item a.is-current {
+    color: #ffffff;
+    border-left-color: var(--planet-accent, #e2d1c3);
+  }
+
+  .post-outline-empty {
+    margin: 0;
+    font-size: 0.78rem;
+    color: rgba(245, 241, 234, 0.58);
+  }
+
+  .blog-body :global(.post-search-hit) {
+    animation: post-hit-fade 1.4s ease;
+  }
+
+  @keyframes post-hit-fade {
+    0% { background: rgba(255, 255, 255, 0.22); }
+    100% { background: transparent; }
   }
 
   .blog-body-frame::before,
@@ -609,5 +883,106 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
     .blog-body-frame {
       padding: 1.75rem 1.25rem;
     }
+  }
+
+  @media (max-width: 1279px) {
+    :global(html.mobile-search-panel-open) .post-side-left,
+    :global(html.mobile-outline-panel-open) .post-side-right {
+      display: block;
+      position: fixed;
+      top: 5.35rem;
+      z-index: 40;
+      width: min(21rem, calc(100vw - 1.25rem));
+    }
+
+    :global(html.mobile-search-panel-open) .post-side-left {
+      left: 0.625rem;
+    }
+
+    :global(html.mobile-outline-panel-open) .post-side-right {
+      right: 0.625rem;
+    }
+
+    .post-side-panel {
+      max-height: min(70svh, 32rem);
+      overflow: auto;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .post-reading-shell {
+      max-width: 44rem;
+      margin: 2rem auto 2.5rem;
+      position: relative;
+    }
+
+    .post-side {
+      display: block;
+      position: fixed;
+      top: 6.1rem;
+      z-index: 2;
+      width: min(17rem, 20vw);
+    }
+
+    .post-side-left {
+      left: max(1rem, calc((100vw - 44rem) / 2 - 18.5rem));
+    }
+
+    .post-side-right {
+      right: max(1rem, calc((100vw - 44rem) / 2 - 18.5rem));
+    }
+
+    .post-side-panel {
+      max-height: calc(100vh - 8rem);
+      overflow: auto;
+    }
+
+    .blog-body-frame {
+      margin: 0;
+      width: 100%;
+      max-width: 44rem;
+      justify-self: center;
+    }
+  }
+
+  :global(html[data-post-theme="paper"]) .post-side-panel {
+    border-color: rgba(70, 50, 20, 0.2);
+    background: rgba(234, 221, 194, 0.88);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.45) inset,
+      0 18px 34px -26px rgba(40, 25, 0, 0.3);
+  }
+
+  :global(html[data-post-theme="paper"]) .post-side-title {
+    color: #6b4a18;
+  }
+
+  :global(html[data-post-theme="paper"]) .post-search-input {
+    border-color: rgba(70, 50, 20, 0.22);
+    background: rgba(255, 255, 255, 0.45);
+    color: #2d2110;
+  }
+
+  :global(html[data-post-theme="paper"]) .post-search-empty,
+  :global(html[data-post-theme="paper"]) .post-outline-empty,
+  :global(html[data-post-theme="paper"]) .post-outline .outline-item a {
+    color: rgba(60, 45, 20, 0.82);
+  }
+
+  :global(html[data-post-theme="paper"]) .post-search-result-btn {
+    border-color: rgba(70, 50, 20, 0.18);
+    background: rgba(255, 255, 255, 0.42);
+    color: #2d2110;
+  }
+
+  :global(html[data-post-theme="paper"]) .post-search-result-btn:hover {
+    border-color: rgba(139, 90, 32, 0.34);
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  :global(html[data-post-theme="paper"]) .post-outline .outline-item a:hover,
+  :global(html[data-post-theme="paper"]) .post-outline .outline-item a.is-current {
+    color: #2a1f10;
+    border-left-color: #8b5a20;
   }
 </style>

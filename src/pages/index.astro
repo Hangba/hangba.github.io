@@ -4,7 +4,6 @@ import MainLayout from "../layouts/MainLayout.astro";
 import siteConfig from "../site.config";
 import { sortItemsByDateDesc, withBase } from "../utils/helpers";
 import PostCardPreview from "../components/PostCardPreview.astro";
-import Button from "../components/Button.astro";
 import Hero from "../components/Hero.astro";
 import ArrowRight from "../icons/ArrowRight.astro";
 
@@ -43,13 +42,13 @@ const allPosts = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
             }
         </div>
         <div data-reveal style={`--reveal-delay:${120 + allPosts.length * 90}ms`}>
-            <Button
+            <a
                 href={withBase("/blog")}
-                class="space-btn-filled mt-12 px-8 py-3 rounded-md hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                class="home-blog-link mt-20"
             >
-                Blog
-                <ArrowRight class="w-5 h-5 fill-current ml-4 inline" />
-            </Button>
+                Enter the Star Archive
+                <ArrowRight class="w-4 h-4 fill-current ml-2 inline" />
+            </a>
         </div>
     </section>
 </MainLayout>
@@ -81,5 +80,62 @@ const allPosts = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
         width: 100%;
         display: flex;
         justify-content: center;
+    }
+
+    .home-blog-link {
+        display: inline-flex;
+        align-items: center;
+        font-family: var(--font-serif, "New Computer Modern Roman", serif);
+        font-size: 0.96rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #ffffff !important;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+        padding: 0.2rem 0;
+        transition:
+            color 220ms ease,
+            transform 220ms ease,
+            border-color 220ms ease,
+            opacity 220ms ease;
+    }
+
+    .home-blog-link:hover,
+    .home-blog-link:focus-visible {
+        transform: translateY(-1px);
+        color: rgba(255, 255, 255, 0.98) !important;
+        border-color: rgba(255, 255, 255, 0.62);
+        opacity: 1;
+    }
+
+    .home-blog-link :global(svg) {
+        transition: transform 220ms ease;
+    }
+
+    .home-blog-link:hover :global(svg),
+    .home-blog-link:focus-visible :global(svg) {
+        transform: translateX(2px);
+    }
+
+    :global(html[data-post-theme="paper"]) .home-blog-link {
+        color: #ffffff !important;
+        border-color: rgba(70, 50, 20, 0.35);
+    }
+
+    :global(html[data-post-theme="paper"]) .home-blog-link:hover,
+    :global(html[data-post-theme="paper"]) .home-blog-link:focus-visible {
+        color: #ffffff !important;
+        border-color: rgba(139, 90, 32, 0.58);
+    }
+
+    :global(html[data-post-theme="texture"]) .home-blog-link {
+        color: #ffffff !important;
+        border-color: rgba(255, 255, 255, 0.32);
+    }
+
+    :global(html[data-post-theme="texture"]) .home-blog-link:hover,
+    :global(html[data-post-theme="texture"]) .home-blog-link:focus-visible {
+        color: rgba(245, 241, 234, 0.98) !important;
+        border-color: rgba(255, 255, 255, 0.42);
     }
 </style>

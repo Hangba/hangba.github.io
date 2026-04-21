@@ -3,19 +3,23 @@
  * to Noto Serif SC. Local installations win over the network fetch. */
 @font-face {
   font-family: "New Computer Modern Roman";
-  src:
-    local("New Computer Modern Roman"),
-    local("NewComputerModern Roman"),
-    local("New Computer Modern"),
-    local("Latin Modern Roman"),
-    url("/fonts/NCMM.woff2") format("woff2");
+  src: url("/fonts/NCMM.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
-  font-display: block;
+  font-display: swap;
   unicode-range:
     U+0000-00FF, U+0100-024F, U+0300-036F, U+1E00-1EFF,
     U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F,
     U+2190-21FF, U+2200-22FF, U+25A0-25FF, U+2C60-2C7F;
+}
+
+:root {
+  --font-latin-primary: "Latin Modern Roman", "CMU Serif";
+  --font-latin-with-ncmr: "New Computer Modern Roman", "Latin Modern Roman", "CMU Serif";
+}
+
+html.ncmr-ready {
+  --font-latin-primary: var(--font-latin-with-ncmr);
 }
 
 /* Source Han Serif SC / 思源宋体 is served from Google Fonts as "Noto Serif SC"
@@ -38,49 +42,49 @@
 
 /* We convert all custom font classes to use New Computer Modern Roman for English and Noto Serif SC for Chinese */
 .sigmar-ff {
-  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", var(--font-serif-cjk);
+  font-family: var(--font-latin-primary), var(--font-serif-cjk);
   font-optical-sizing: auto;
   font-weight: 900;
   font-style: normal;
 }
 
 .kanit-light {
-  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", var(--font-serif-cjk);
+  font-family: var(--font-latin-primary), var(--font-serif-cjk);
   font-weight: 300;
   font-style: normal;
 }
 
 .kanit-light-italic {
-  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", var(--font-serif-cjk);
+  font-family: var(--font-latin-primary), var(--font-serif-cjk);
   font-weight: 300;
   font-style: italic;
 }
 
 .kanit-regular {
-  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", var(--font-serif-cjk);
+  font-family: var(--font-latin-primary), var(--font-serif-cjk);
   font-weight: 400;
   font-style: normal;
 }
 
 .kanit-regular-italic {
-  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", var(--font-serif-cjk);
+  font-family: var(--font-latin-primary), var(--font-serif-cjk);
   font-weight: 400;
   font-style: italic;
 }
 
 .kanit-bold {
-  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", var(--font-serif-cjk);
+  font-family: var(--font-latin-primary), var(--font-serif-cjk);
   font-weight: 700;
   font-style: normal;
 }
 
 .kanit-bold-italic {
-  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", var(--font-serif-cjk);
+  font-family: var(--font-latin-primary), var(--font-serif-cjk);
   font-weight: 700;
   font-style: italic;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: "New Computer Modern Roman", "New Computer Modern", "CMU Serif", var(--font-serif-cjk);
+  font-family: var(--font-latin-primary), var(--font-serif-cjk);
   font-weight: 900 !important;
 }

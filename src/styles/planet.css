@@ -28,13 +28,16 @@
     transform-origin: center center;
     will-change: transform, opacity;
     transform: translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0)
+        rotate(var(--p-r, 0deg))
         scale(var(--p-s, 1));
 }
 
 /* Home intro: delay planet, then fly in from top-left */
 html[data-page="home"].home-planet-preload:not(.home-planet-entered) #planet-stage {
     opacity: 0;
-    transform: translate3d(-58vw, -58vh, 0) scale(0.42);
+    transform: translate3d(-58vw, -58vh, 0)
+        rotate(var(--p-r, 0deg))
+        scale(0.42);
     filter: blur(2px);
 }
 
@@ -42,6 +45,7 @@ html[data-page="home"].home-planet-preload.home-planet-entered #planet-stage {
     opacity: 1;
     filter: blur(0);
     transform: translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0)
+        rotate(var(--p-r, 0deg))
         scale(var(--p-s, 1));
     transition:
         transform 1100ms cubic-bezier(0.19, 1, 0.22, 1),
@@ -82,6 +86,17 @@ html[data-page="home"] {
     --p-y: -18vh;
     --p-s: 1.1;
 }
+/* Saturn's ring is 2.3× the sphere and tilts into the lower half of the frame,
+   so the default home offset pushes the ring off the left edge. Pull it closer
+   to center, scale the whole canvas up (keeps sphere large without changing
+   the camera, which would clip the ring), and roll the image plane so the ring
+   reads as a diagonal instead of a flat horizontal. Mobile override is below. */
+html[data-page="home"][data-planet-id="saturn"] {
+    --p-x: -24vw;
+    --p-y: -18vh;
+    --p-s: 1.2;
+    --p-r: 12deg;
+}
 html[data-page="blog"] {
     --p-x: 38vw;
     --p-y: 0vh;
@@ -93,11 +108,6 @@ html[data-page="blog-post"] {
     --p-s: 0.5;
 }
 html[data-page="about"] {
-    --p-x: 32vw;
-    --p-y: -32vh;
-    --p-s: 0.45;
-}
-html[data-page="contact"] {
     --p-x: 32vw;
     --p-y: -32vh;
     --p-s: 0.45;
@@ -135,7 +145,6 @@ html[data-page="blog"]:not(.is-navigating) #planet-stage {
 }
 
 html[data-page="about"]:not(.is-navigating) #planet-stage,
-html[data-page="contact"]:not(.is-navigating) #planet-stage,
 html[data-page="friends"]:not(.is-navigating) #planet-stage,
 html[data-page="tags"]:not(.is-navigating) #planet-stage {
     transform: translate3d(
@@ -214,7 +223,7 @@ html.is-revealed [data-reveal] {
 /* ----------------------------------------------------------------------------
  * Landing-page content centering — overrides the global portrait left-align
  * (global.css @media orientation:portrait .page-content { text-align: left })
- * so blog / about / contact / tags keep their content centered on all devices.
+ * so blog / about / tags keep their content centered on all devices.
  * Nested .text-left descendants (e.g. post card bodies) opt back into left
  * alignment for readability.
  * -------------------------------------------------------------------------- */
@@ -440,7 +449,7 @@ html.dark a:not(.button-link):hover {
         --p-s: 0.85;
     }
     html[data-page="home"][data-planet-id="saturn"] {
-        --p-x: -2vw;
+        --p-x: -10vw;
         --p-y: -14vh;
         --p-s: 0.66;
     }
@@ -461,7 +470,6 @@ html.dark a:not(.button-link):hover {
             scale(calc(0.6 + 2.6 * var(--planet-progress, 0)));
     }
     html[data-page="about"]:not(.is-navigating) #planet-stage,
-    html[data-page="contact"]:not(.is-navigating) #planet-stage,
     html[data-page="friends"]:not(.is-navigating) #planet-stage,
     html[data-page="tags"]:not(.is-navigating) #planet-stage {
         transform: translate3d(

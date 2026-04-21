@@ -63,7 +63,7 @@ export type SiteConfig = {
 
 const siteConfig: SiteConfig = {
     website: 'https://hangba.github.io',
-    title: 'Hangba的Blog',
+    title: 'HangbaSteve\'s Blog',
     description: 'HangbaSteve的个人Blog',
     headerNavLinks: [
         {
@@ -85,20 +85,12 @@ const siteConfig: SiteConfig = {
         {
             text: 'About',
             href: withBase('/about')
-        },
-        {
-            text: 'Contact',
-            href: withBase('/contact')
         }
     ],
     footerNavLinks: [
         {
             text: 'About',
             href: withBase('/about')
-        },
-        {
-            text: 'Contact',
-            href: withBase('/contact')
         },
         {
             text: 'RSS Feed',
@@ -111,7 +103,7 @@ const siteConfig: SiteConfig = {
     ],
     hero: {
         eyebrowText: '欢迎来到',
-        title: 'Hangba的Blog',
+        title: 'HangbaSteve\'s Blog',
         titleLines: ['HangbaSteve\'s', 'Blog'],
         text: "My God! It's full of stars!",
         image: {

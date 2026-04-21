@@ -31,9 +31,7 @@ const dataPage = pageKind
             ? "tags"
             : pathname.startsWith("/about")
               ? "about"
-              : pathname.startsWith("/contact")
-                ? "contact"
-                : pathname.startsWith("/friends")
+                            : pathname.startsWith("/friends")
                   ? "friends"
                   : "home";
 
@@ -89,6 +87,13 @@ const planetThemeMap = Object.fromEntries(
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="generator" content={Astro.generator} />
         <link rel="sitemap" href={withBase(`/sitemap-index.xml`)} />
+        <link rel="preconnect" href="https://lalten.github.io" />
+        <link
+            rel="stylesheet"
+            href="https://lalten.github.io/lmweb/style/latinmodern-roman.css"
+            type="text/css"
+            charset="utf-8"
+        />
         <link
             rel="preload"
             href={withBase("/fonts/NCMM.woff2")}
@@ -166,6 +171,27 @@ const planetThemeMap = Object.fromEntries(
             applyPersistedPlanetTheme();
             document.addEventListener("astro:after-swap", applyPersistedPlanetTheme);
             document.addEventListener("astro:page-load", applyPersistedPlanetTheme);
+        </script>
+        <script is:inline>
+            const enableNcmrWhenReady = () => {
+                const root = document.documentElement;
+                if (!root || !("fonts" in document)) return;
+
+                const markReady = () => {
+                    root.classList.add("ncmr-ready");
+                };
+
+                document.fonts
+                    .load('400 1em "New Computer Modern Roman"')
+                    .then(markReady)
+                    .catch(() => {
+                        /* keep Latin Modern fallback */
+                    });
+            };
+
+            enableNcmrWhenReady();
+            document.addEventListener("astro:after-swap", enableNcmrWhenReady);
+            document.addEventListener("astro:page-load", enableNcmrWhenReady);
         </script>
         <title>{pageTitle}</title>
         <ClientRouter />

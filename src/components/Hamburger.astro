@@ -2,8 +2,56 @@
 
 ---
 
-<span
+<button
   id="hamburger-menu"
-  class="relative top-[-2px] block text-xl leading-none sm:hidden"
-  title="Menu">🍔</span
+  class="hamburger-menu sm:hidden"
+  type="button"
+  aria-label="Open menu"
+  title="Menu"
 >
+  <span aria-hidden="true" class="hamburger-lines"></span>
+</button>
+
+<style>
+  .hamburger-menu {
+    position: relative;
+    top: -2px;
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .hamburger-lines,
+  .hamburger-lines::before,
+  .hamburger-lines::after {
+    content: "";
+    display: block;
+    width: 1.05rem;
+    height: 2px;
+    border-radius: 99px;
+    background: currentColor;
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+
+  .hamburger-lines::before {
+    transform: translateY(-0.33rem);
+  }
+
+  .hamburger-lines::after {
+    transform: translateY(0.21rem);
+  }
+
+  @media (min-width: 640px) {
+    .hamburger-menu {
+      display: none;
+    }
+  }
+</style>

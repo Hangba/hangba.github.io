@@ -38,7 +38,7 @@ type StageState = {
 
 let state: StageState | null = null;
 let scrollHandlerAttached = false;
-const SCROLL_PAGES = new Set(["home", "blog", "about", "contact", "friends", "tags"]);
+const SCROLL_PAGES = new Set(["home", "blog", "about", "friends", "tags"]);
 const NAVIGATE_DURATION = 900;
 const CONTENT_ENTER_DURATION = 220;
 const PLANET_SWITCH_OUT_MS = 360;
@@ -50,18 +50,25 @@ let planetSwitching = false;
 const planetClickRaycaster = new THREE.Raycaster();
 const planetClickPointer = new THREE.Vector2();
 
+function isMobileMenuExpanded(): boolean {
+    return document.documentElement.dataset.mobileMenuExpanded === "true";
+}
+
 function pathToPage(pathname: string): string {
     if (pathname === "/" || pathname === "") return "home";
     if (pathname.startsWith("/blog")) return "blog";
     if (pathname.startsWith("/tags")) return "tags";
     if (pathname.startsWith("/about")) return "about";
-    if (pathname.startsWith("/contact")) return "contact";
     if (pathname.startsWith("/friends")) return "friends";
     return "home";
 }
 
 const CAMERA_FOV = 50;
 const SPHERE_FILL = 0.85;
+// Tuned so Saturn's tilted ring just fits inside the camera's vertical frustum.
+// Going higher starts clipping the near ring edge — the geometry is culled by
+// the camera, not the CSS container, so it cannot be fixed by enlarging the
+// stage. Use the per-page `--p-s` CSS scale to make Saturn visually larger.
 const RING_SPHERE_FILL = 0.52;
 
 function cameraDistanceFor(aspect: number, fillFactor = SPHERE_FILL): number {
@@ -97,12 +104,18 @@ function readPlanet(stage: HTMLElement): Planet | null {
 function buildRing(
     loader: THREE.TextureLoader,
     renderer: THREE.WebGLRenderer,
-    planet: Planet
+    planet: Planet,
+    onLoad?: () => void
 ): { mesh: THREE.Mesh; material: THREE.MeshBasicMaterial } | null {
     if (!planet.ringMap || !planet.ringInnerRadius || !planet.ringOuterRadius) {
         return null;
     }
-    const ringTex = loader.load(planet.ringMap);
+    const ringTex = loader.load(
+        planet.ringMap,
+        onLoad ? () => onLoad() : undefined,
+        undefined,
+        onLoad ? () => onLoad() : undefined
+    );
     ringTex.colorSpace = THREE.SRGBColorSpace;
     ringTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
@@ -135,10 +148,16 @@ function buildRing(
 function buildCloud(
     loader: THREE.TextureLoader,
     renderer: THREE.WebGLRenderer,
-    planet: Planet
+    planet: Planet,
+    onLoad?: () => void
 ): { mesh: THREE.Mesh; material: THREE.MeshStandardMaterial } | null {
     if (!planet.cloudMap) return null;
-    const cloudTex = loader.load(planet.cloudMap);
+    const cloudTex = loader.load(
+        planet.cloudMap,
+        onLoad ? () => onLoad() : undefined,
+        undefined,
+        onLoad ? () => onLoad() : undefined
+    );
     cloudTex.colorSpace = THREE.SRGBColorSpace;
     cloudTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     const mat = new THREE.MeshStandardMaterial({
@@ -252,32 +271,45 @@ function syncRendererSize(s: StageState) {
  * Hot-swap the planet at runtime: new textures, tilt, optional cloud, optional
  * ring, lighting, and CSS theme variables — without re-creating the scene.
  * Exposed on window so Hero's cycler button (or any other caller) can trigger it.
+ *
+ * Returns a Promise that resolves once the new textures (sphere colorMap, and
+ * cloud/ring maps if present) have finished loading. Callers that need to avoid
+ * flashing the previous texture during the transition should await it.
  */
-function applyPlanetSwap(s: StageState, nextPlanet: Planet) {
+function applyPlanetSwap(s: StageState, nextPlanet: Planet): Promise<void> {
 
     s.planet = nextPlanet;
     s.hqLoaded = false;
 
+    const loadTasks: Promise<void>[] = [];
+
     // Sphere texture + roughness swap
-    s.loader.load(
-        nextPlanet.colorMap,
-        (tex) => {
-            tex.colorSpace = THREE.SRGBColorSpace;
-            tex.anisotropy = s.renderer.capabilities.getMaxAnisotropy();
-            const old = s.material.map;
-            s.material.map = tex;
-            s.material.roughness = nextPlanet.roughness ?? 1;
-            s.material.needsUpdate = true;
-            if (old) old.dispose();
-            const req = (
-                window as unknown as {
-                    requestIdleCallback?: (cb: () => void) => void;
-                }
-            ).requestIdleCallback;
-            const kick = () => upgradeToHQ(s.loader, s);
-            if (req) req(kick);
-            else setTimeout(kick, 600);
-        }
+    loadTasks.push(
+        new Promise<void>((resolve) => {
+            s.loader.load(
+                nextPlanet.colorMap,
+                (tex) => {
+                    tex.colorSpace = THREE.SRGBColorSpace;
+                    tex.anisotropy = s.renderer.capabilities.getMaxAnisotropy();
+                    const old = s.material.map;
+                    s.material.map = tex;
+                    s.material.roughness = nextPlanet.roughness ?? 1;
+                    s.material.needsUpdate = true;
+                    if (old) old.dispose();
+                    const req = (
+                        window as unknown as {
+                            requestIdleCallback?: (cb: () => void) => void;
+                        }
+                    ).requestIdleCallback;
+                    const kick = () => upgradeToHQ(s.loader, s);
+                    if (req) req(kick);
+                    else setTimeout(kick, 600);
+                    resolve();
+                },
+                undefined,
+                () => resolve()
+            );
+        })
     );
 
     // Axial tilt (applied to group so rings/clouds inherit it)
@@ -287,26 +319,45 @@ function applyPlanetSwap(s: StageState, nextPlanet: Planet) {
     if (nextPlanet.cloudMap) {
         if (s.cloud && s.cloudMaterial) {
             // Swap texture on the existing cloud mesh
-            s.loader.load(nextPlanet.cloudMap, (tex) => {
-                tex.colorSpace = THREE.SRGBColorSpace;
-                tex.anisotropy = s.renderer.capabilities.getMaxAnisotropy();
-                const mat = s.cloudMaterial!;
-                const oldMap = mat.map;
-                const oldAlpha = mat.alphaMap;
-                mat.map = tex;
-                mat.alphaMap = tex;
-                mat.opacity = nextPlanet.cloudOpacity ?? 0.85;
-                mat.needsUpdate = true;
-                if (oldMap) oldMap.dispose();
-                if (oldAlpha && oldAlpha !== oldMap) oldAlpha.dispose();
-            });
+            loadTasks.push(
+                new Promise<void>((resolve) => {
+                    s.loader.load(
+                        nextPlanet.cloudMap!,
+                        (tex) => {
+                            tex.colorSpace = THREE.SRGBColorSpace;
+                            tex.anisotropy =
+                                s.renderer.capabilities.getMaxAnisotropy();
+                            const mat = s.cloudMaterial!;
+                            const oldMap = mat.map;
+                            const oldAlpha = mat.alphaMap;
+                            mat.map = tex;
+                            mat.alphaMap = tex;
+                            mat.opacity = nextPlanet.cloudOpacity ?? 0.85;
+                            mat.needsUpdate = true;
+                            if (oldMap) oldMap.dispose();
+                            if (oldAlpha && oldAlpha !== oldMap) oldAlpha.dispose();
+                            resolve();
+                        },
+                        undefined,
+                        () => resolve()
+                    );
+                })
+            );
         } else {
-            const built = buildCloud(s.loader, s.renderer, nextPlanet);
-            if (built) {
-                s.bodyGroup.add(built.mesh);
-                s.cloud = built.mesh;
-                s.cloudMaterial = built.material;
-            }
+            loadTasks.push(
+                new Promise<void>((resolve) => {
+                    const built = buildCloud(s.loader, s.renderer, nextPlanet, () =>
+                        resolve()
+                    );
+                    if (built) {
+                        s.bodyGroup.add(built.mesh);
+                        s.cloud = built.mesh;
+                        s.cloudMaterial = built.material;
+                    } else {
+                        resolve();
+                    }
+                })
+            );
         }
     } else if (s.cloud) {
         s.bodyGroup.remove(s.cloud);
@@ -332,12 +383,20 @@ function applyPlanetSwap(s: StageState, nextPlanet: Planet) {
         s.ringMaterial = undefined;
     }
     if (nextPlanet.ringMap && !s.ring) {
-        const built = buildRing(s.loader, s.renderer, nextPlanet);
-        if (built) {
-            s.bodyGroup.add(built.mesh);
-            s.ring = built.mesh;
-            s.ringMaterial = built.material;
-        }
+        loadTasks.push(
+            new Promise<void>((resolve) => {
+                const built = buildRing(s.loader, s.renderer, nextPlanet, () =>
+                    resolve()
+                );
+                if (built) {
+                    s.bodyGroup.add(built.mesh);
+                    s.ring = built.mesh;
+                    s.ringMaterial = built.material;
+                } else {
+                    resolve();
+                }
+            })
+        );
     }
 
     // Camera distance retunes when ring state changes (rings need more headroom)
@@ -356,20 +415,22 @@ function applyPlanetSwap(s: StageState, nextPlanet: Planet) {
     } catch {
         /* ignore */
     }
+
+    return Promise.all(loadTasks).then(() => undefined);
 }
 
-async function animatePlanetOut(stageEl: HTMLElement) {
-    if (reduced() || typeof stageEl.animate !== "function") return;
+async function animatePlanetOut(stageEl: HTMLElement): Promise<Animation | null> {
+    if (reduced() || typeof stageEl.animate !== "function") return null;
 
     const fadeOut = stageEl.animate(
         [
             {
-                transform: "translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0) scale(var(--p-s, 1))",
+                transform: "translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0) rotate(var(--p-r, 0deg)) scale(var(--p-s, 1))",
                 opacity: 1,
                 filter: "blur(0)",
             },
             {
-                transform: "translate3d(-58vw, -58vh, 0) scale(0.14)",
+                transform: "translate3d(-58vw, -58vh, 0) rotate(var(--p-r, 0deg)) scale(0.14)",
                 opacity: 0,
                 filter: "blur(2px)",
             },
@@ -382,22 +443,31 @@ async function animatePlanetOut(stageEl: HTMLElement) {
     );
 
     await fadeOut.finished.catch(() => undefined);
-    fadeOut.cancel();
+    // Leave the animation forward-filled so the sphere stays parked at the
+    // upper-left corner (invisible) while we wait for the next texture to
+    // load. The caller cancels it once animatePlanetIn has taken over.
+    return fadeOut;
 
 }
 
-async function animatePlanetIn(stageEl: HTMLElement) {
-    if (reduced() || typeof stageEl.animate !== "function") return;
+async function animatePlanetIn(
+    stageEl: HTMLElement,
+    previousOut: Animation | null
+) {
+    if (reduced() || typeof stageEl.animate !== "function") {
+        if (previousOut) previousOut.cancel();
+        return;
+    }
 
     const fadeIn = stageEl.animate(
         [
             {
-                transform: "translate3d(-58vw, -58vh, 0) scale(0.14)",
+                transform: "translate3d(-58vw, -58vh, 0) rotate(var(--p-r, 0deg)) scale(0.14)",
                 opacity: 0,
                 filter: "blur(2px)",
             },
             {
-                transform: "translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0) scale(var(--p-s, 1))",
+                transform: "translate3d(var(--p-x, 0vw), var(--p-y, 0vh), 0) rotate(var(--p-r, 0deg)) scale(var(--p-s, 1))",
                 opacity: 1,
                 filter: "blur(0)",
             },
@@ -409,6 +479,10 @@ async function animatePlanetIn(stageEl: HTMLElement) {
         }
     );
 
+    // fadeIn now drives the element; release the forward-filled out animation
+    // so canceling fadeIn at the end returns the element to its default state.
+    if (previousOut) previousOut.cancel();
+
     await fadeIn.finished.catch(() => undefined);
     fadeIn.cancel();
 }
@@ -419,9 +493,11 @@ async function switchPlanet(nextPlanet: Planet) {
     const s = state;
 
     try {
-        await animatePlanetOut(s.stageEl);
-        applyPlanetSwap(s, nextPlanet);
-        await animatePlanetIn(s.stageEl);
+        const outAnim = await animatePlanetOut(s.stageEl);
+        // Wait for the new textures to finish loading before revealing the
+        // planet, so the in-animation never shows the previous texture.
+        await applyPlanetSwap(s, nextPlanet);
+        await animatePlanetIn(s.stageEl, outAnim);
     } finally {
         planetSwitching = false;
     }
@@ -605,7 +681,14 @@ function startThree(stage: HTMLElement, planet: Planet) {
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     const onPlanetClick = (event: MouseEvent) => {
-        if (!state || planetSwitching || !didClickPlanet(event, state)) return;
+        if (
+            !state ||
+            planetSwitching ||
+            isMobileMenuExpanded() ||
+            !didClickPlanet(event, state)
+        ) {
+            return;
+        }
 
         const nextPlanet = getNextPlanet(state.planet);
         if (!nextPlanet) return;

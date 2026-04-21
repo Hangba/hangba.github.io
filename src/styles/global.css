@@ -20,8 +20,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "New Computer Modern Roman", "New Computer Modern", "Latin Modern Roman", "CMU Serif", var(--font-serif-cjk);
-  --font-serif: "New Computer Modern Roman", "New Computer Modern", "Latin Modern Roman", "CMU Serif", var(--font-serif-cjk);
+  --font-sans: var(--font-latin-primary), var(--font-serif-cjk);
+  --font-serif: var(--font-latin-primary), var(--font-serif-cjk);
   --color-space-red: var(--space-red);
   --color-space-yellow: var(--space-yellow);
   --color-space-sand: var(--space-sand);
@@ -128,10 +128,6 @@ html.dark[data-post-theme="texture"]:not([data-page="home"]) {
   background-position: center;
   background-attachment: fixed;
 }
-html.dark[data-planet-id="mars"][data-post-theme="texture"]:not([data-page="home"]) {
-  background-size: auto, auto, 135% auto;
-  background-position: center, center, center 46%;
-}
 html.dark[data-post-theme="texture"]:not([data-page="home"]) body {
   position: relative;
   isolation: isolate;
@@ -153,33 +149,6 @@ html.dark[data-post-theme="texture"]:not([data-page="home"]) body::after {
 html.dark[data-post-theme="texture"]:not([data-page="home"]) body > * {
   position: relative;
   z-index: 1;
-}
-
-/* Mars style on all non-home pages */
-html.dark:not([data-page="home"]) body {
-  background:
-    radial-gradient(circle at 18% 22%, rgba(226, 132, 96, 0.18), transparent 48%),
-    radial-gradient(circle at 80% 10%, rgba(170, 76, 50, 0.25), transparent 42%),
-    linear-gradient(180deg, #2b1714 0%, #1b0f0d 100%);
-  color: rgba(247, 236, 228, 0.95);
-}
-html.dark:not([data-page="home"]) a:not(.button-link) {
-  color: #f7e5d6;
-}
-html.dark:not([data-page="home"]) a:not(.button-link):hover {
-  color: #f0a982;
-}
-html.dark:not([data-page="home"]) a.button-link:not(:disabled),
-html.dark:not([data-page="home"]) button.button-link:not(:disabled) {
-  border-color: rgba(240, 169, 130, 0.38);
-  color: #f7e5d6;
-  background: rgba(244, 146, 107, 0.08);
-}
-html.dark:not([data-page="home"]) a.button-link:not(:disabled):hover,
-html.dark:not([data-page="home"]) button.button-link:not(:disabled):hover {
-  border-color: #f0a982;
-  color: #ffd4bd;
-  background: rgba(244, 146, 107, 0.2);
 }
 
 /* Jupiter non-home pages: enforce deep-brown typography */
@@ -294,6 +263,35 @@ html.dark a:not(.button-link):hover {
 @media (orientation: portrait) {
   .page-content {
     text-align: left;
+  }
+}
+
+/* Desktop portrait hardening: some GPU/compositor pipelines render fixed
+   attachments and fullscreen backdrop filters incorrectly in this shape.
+   Fall back to scroll-attached backgrounds for robust rendering. */
+@media (orientation: portrait) and (min-width: 900px) and (pointer: fine) {
+  html.dark body,
+  html.dark[data-post-theme="paper"]:not([data-page="home"]) body,
+  html.dark[data-post-theme="texture"]:not([data-page="home"]) {
+    background-attachment: scroll !important;
+  }
+
+  html.dark[data-post-theme="texture"]:not([data-page="home"]) body::before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Narrow-screen hardening (Mars is the most sensitive): avoid fixed+blur
+   compositor path that can glitch on mobile/low-width viewports. */
+@media (max-width: 899px) {
+  html.dark[data-post-theme="texture"]:not([data-page="home"]) {
+    background-attachment: scroll !important;
+  }
+
+  html.dark[data-post-theme="texture"]:not([data-page="home"]) body::before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
 

@@ -4,6 +4,7 @@ import Hamburger from "./Hamburger.astro";
 import ThemeSwitcher from "./ThemeSwitcher.astro";
 import SiteIdentity from "./SiteIdentity.astro";
 import NavLinks from "./NavLinks.astro";
+import PostTools from "./PostTools.astro";
 import { withBase } from "../utils/helpers";
 const { activePage } = Astro.props;
 ---
@@ -20,21 +21,33 @@ const { activePage } = Astro.props;
     id="mobile-links"
     class="font-light animated h-0 m-0 opacity-0 top-0 w-full"
   >
-    <span class="close-menu">❌</span>
+    <span class="close-menu" aria-label="Close menu">&times;</span>
     <NavLinks
       activePage={activePage}
       links={siteConfig.headerNavLinks}
       isMobileLink={true}
     />
   </div>
+  <PostTools />
 </header>
 <script>
+  declare global {
+    interface Window {
+      _navScrollBound?: boolean;
+    }
+  }
+
+  function setMobileMenuExpanded(isExpanded: boolean) {
+    document.documentElement.dataset.mobileMenuExpanded = isExpanded ? "true" : "false";
+  }
+
   function bindNav() {
     const ham = document.querySelector("#hamburger-menu");
     const close = document.querySelector(".close-menu");
     const mobile = document.querySelector("#mobile-links");
     const homeLinks = document.querySelectorAll(".nav-logo-link");
     if (!ham || !close || !mobile) return;
+    setMobileMenuExpanded(mobile.classList.contains("expanded"));
     homeLinks.forEach((link) => {
       if (link instanceof HTMLAnchorElement && link.dataset.boundHome !== "1") {
         link.dataset.boundHome = "1";
@@ -45,15 +58,23 @@ const { activePage } = Astro.props;
         });
       }
     });
-    ham.addEventListener("click", () => {
-      mobile.classList.remove("slideOutUp");
-      mobile.classList.add("expanded", "slideInDown");
-    });
-    close.addEventListener("click", () => {
-      mobile.classList.add("slideOutUp");
-      mobile.classList.add("expanded");
-      mobile.classList.remove("slideInDown");
-    });
+    if ((ham as HTMLElement).dataset.boundNav !== "1") {
+      (ham as HTMLElement).dataset.boundNav = "1";
+      ham.addEventListener("click", () => {
+        mobile.classList.remove("slideOutUp");
+        mobile.classList.add("expanded", "slideInDown");
+        setMobileMenuExpanded(true);
+      });
+    }
+    if ((close as HTMLElement).dataset.boundNav !== "1") {
+      (close as HTMLElement).dataset.boundNav = "1";
+      close.addEventListener("click", () => {
+        mobile.classList.add("slideOutUp");
+        mobile.classList.add("expanded");
+        mobile.classList.remove("slideInDown");
+        setMobileMenuExpanded(false);
+      });
+    }
   }
   bindNav();
   document.addEventListener("astro:page-load", bindNav);
@@ -93,6 +114,11 @@ document.addEventListener("astro:page-load", bindScroll);
   }
 
   :global(#site-header .site-nav) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
     height: 56px; /* Explicitly fixed height to stop vertical jittering */
     transition: max-width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
                 background-color 0.4s ease,
@@ -106,8 +132,17 @@ document.addEventListener("astro:page-load", bindScroll);
     margin: 0 auto;
     position: relative;
     box-sizing: border-box;
+    border-radius: 9999px;
+    padding: 0.55rem 1.25rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
     background-color: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  :global(#site-header .nav-logo-link),
+  :global(#site-header .nav-logo-link .sigmar-ff) {
+    white-space: nowrap;
   }
   
   :global(#site-header .desktop-links) {
@@ -137,8 +172,8 @@ document.addEventListener("astro:page-load", bindScroll);
   }
 
   :global(#site-header.nav-scrolled .site-nav) {
-    /* Set exactly wide enough for "Logo+Hangba的Blog+MenuIcon" */
-    max-width: 256px; 
+    /* Set exactly wide enough for "Logo+HangbaSteve\'s Blog+MenuIcon" */
+    max-width: 280px;
     margin: 0 auto;
     padding: 0 1rem; 
     gap: 0.75rem;
@@ -160,28 +195,104 @@ document.addEventListener("astro:page-load", bindScroll);
     /* Anchor header structurally */
     padding: 0;
   }
-  
+
   @media (orientation: portrait) {
     #mobile-links.expanded {
-      align-items: end;
-      background-color: #0000007a;
-      backdrop-filter: blur(72px);
+      align-items: stretch;
+      background:
+        linear-gradient(145deg, rgba(17, 20, 30, 0.86), rgba(8, 10, 16, 0.92));
+      backdrop-filter: blur(20px) saturate(130%);
+      -webkit-backdrop-filter: blur(20px) saturate(130%);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.12) inset,
+        0 24px 42px -24px rgba(0, 0, 0, 0.7);
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      justify-content: end;
-      position: absolute;
-      z-index: 10;
+      gap: 0.4rem;
+      justify-content: flex-start;
+      position: fixed;
+      z-index: 30;
       opacity: 1;
-      padding: 1rem 2rem;
-      width: 100vw;
-      top: 0;
-      min-height: fit-content;
-      border-bottom-left-radius: 0.5rem;
-      border-bottom-right-radius: 0.5rem;
+      padding: 0.85rem 0.95rem 0.95rem;
+      width: min(19rem, calc(100vw - 1rem));
+      max-height: min(72svh, 31rem);
+      overflow: auto;
+      right: 0.5rem;
+      top: 0.5rem;
+      height: auto !important;
+      min-height: 0;
+      border-radius: 1rem;
     }
-    html.light #mobile-links.expanded {
-      background-color: #ffffff6a;
+
+    #mobile-links.expanded .close-menu {
+      align-self: flex-end;
+      line-height: 1;
+      margin: 0 0 0.2rem;
+      cursor: pointer;
+      user-select: none;
+      font-size: 1.6rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    :global(#mobile-links.expanded .nav-link) {
+      width: 100%;
+      text-align: right;
+      padding: 0.45rem 0.2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      text-decoration: none;
+    }
+
+    :global(#mobile-links.expanded .nav-link:last-child) {
+      border-bottom: 0;
+    }
+
+    html.light #mobile-links.expanded,
+    html[data-post-theme="paper"] #mobile-links.expanded {
+      background:
+        linear-gradient(145deg, rgba(236, 224, 196, 0.95), rgba(220, 204, 170, 0.95));
+      border-color: rgba(70, 50, 20, 0.22);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.55) inset,
+        0 24px 42px -24px rgba(40, 25, 0, 0.32);
+    }
+
+    html.light #mobile-links.expanded .close-menu,
+    html[data-post-theme="paper"] #mobile-links.expanded .close-menu {
+      color: #1a1a1a;
+    }
+
+    html.light :global(#mobile-links.expanded .nav-link),
+    html[data-post-theme="paper"] :global(#mobile-links.expanded .nav-link) {
+      border-bottom-color: rgba(70, 50, 20, 0.15);
+    }
+
+    /* Keep home mobile menu aligned with the dark nav capsule style */
+    html[data-page="home"] #mobile-links.expanded {
+      background:
+        linear-gradient(145deg, rgba(17, 20, 30, 0.86), rgba(8, 10, 16, 0.92));
+      border-color: rgba(255, 255, 255, 0.16);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.12) inset,
+        0 24px 42px -24px rgba(0, 0, 0, 0.7);
+    }
+
+    html[data-page="home"] #mobile-links.expanded .close-menu {
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    html[data-page="home"] :global(#mobile-links.expanded .nav-link) {
+      border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  @media (min-width: 640px) {
+    :global(#site-header .site-nav) {
+      font-size: 1rem;
+      gap: 2rem;
+      padding-top: 0.75rem;
+      padding-bottom: 0.75rem;
     }
   }
 </style>

@@ -1,0 +1,191 @@
+---
+
+---
+
+<div id="post-tools" class="post-tools" aria-label="Post tools">
+  <button
+    id="post-search-toggle"
+    class="post-tool-btn"
+    type="button"
+    aria-label="Open article search"
+    aria-expanded="false"
+    title="Search"
+  >
+    ⌕
+  </button>
+  <button
+    id="post-outline-toggle"
+    class="post-tool-btn"
+    type="button"
+    aria-label="Open article structure"
+    aria-expanded="false"
+    title="Structure"
+  >
+    ≡
+  </button>
+</div>
+<button id="post-tool-backdrop" class="post-tool-backdrop" type="button" aria-label="Close panels"></button>
+
+<script>
+  declare global {
+    interface Window {
+      _postToolsEscBound?: boolean;
+    }
+  }
+
+  function bindPostTools() {
+    const root = document.documentElement;
+    const searchBtn = document.getElementById("post-search-toggle");
+    const outlineBtn = document.getElementById("post-outline-toggle");
+    const backdrop = document.getElementById("post-tool-backdrop");
+    if (!searchBtn || !outlineBtn || !backdrop) return;
+
+    const SEARCH_OPEN = "mobile-search-panel-open";
+    const OUTLINE_OPEN = "mobile-outline-panel-open";
+
+    const closePanels = () => {
+      root.classList.remove(SEARCH_OPEN, OUTLINE_OPEN);
+      searchBtn.setAttribute("aria-expanded", "false");
+      outlineBtn.setAttribute("aria-expanded", "false");
+    };
+
+    const toggleSearch = () => {
+      if (root.classList.contains(SEARCH_OPEN)) {
+        closePanels();
+        return;
+      }
+      root.classList.remove(OUTLINE_OPEN);
+      root.classList.add(SEARCH_OPEN);
+      searchBtn.setAttribute("aria-expanded", "true");
+      outlineBtn.setAttribute("aria-expanded", "false");
+    };
+
+    const toggleOutline = () => {
+      if (root.classList.contains(OUTLINE_OPEN)) {
+        closePanels();
+        return;
+      }
+      root.classList.remove(SEARCH_OPEN);
+      root.classList.add(OUTLINE_OPEN);
+      outlineBtn.setAttribute("aria-expanded", "true");
+      searchBtn.setAttribute("aria-expanded", "false");
+    };
+
+    if ((searchBtn as HTMLButtonElement).dataset.boundPostTools !== "1") {
+      (searchBtn as HTMLButtonElement).dataset.boundPostTools = "1";
+      searchBtn.addEventListener("click", toggleSearch);
+    }
+
+    if ((outlineBtn as HTMLButtonElement).dataset.boundPostTools !== "1") {
+      (outlineBtn as HTMLButtonElement).dataset.boundPostTools = "1";
+      outlineBtn.addEventListener("click", toggleOutline);
+    }
+
+    if ((backdrop as HTMLButtonElement).dataset.boundPostTools !== "1") {
+      (backdrop as HTMLButtonElement).dataset.boundPostTools = "1";
+      backdrop.addEventListener("click", closePanels);
+    }
+
+    if (!window._postToolsEscBound) {
+      window._postToolsEscBound = true;
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") closePanels();
+      });
+    }
+
+    if (root.dataset.page !== "blog-post") {
+      closePanels();
+    }
+  }
+
+  bindPostTools();
+  document.addEventListener("astro:page-load", bindPostTools);
+  document.addEventListener("astro:after-swap", bindPostTools);
+</script>
+
+<style>
+  .post-tools {
+    display: none;
+  }
+
+  .post-tool-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.95rem;
+    height: 1.95rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1;
+    font-size: 1.05rem;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .post-tool-backdrop {
+    display: none;
+  }
+
+  :global(html.mobile-search-panel-open) .post-tool-backdrop,
+  :global(html.mobile-outline-panel-open) .post-tool-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 25;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media (orientation: portrait) {
+    :global(html[data-page="blog-post"]) :global(#site-header.nav-scrolled) .post-tools {
+      display: inline-flex;
+      position: fixed;
+      top: 1rem;
+      right: 0.8rem;
+      z-index: 31;
+      height: 56px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background-color: rgba(255, 255, 255, 0.06);
+      box-shadow:
+        inset 0 0 0.5px 1px hsla(0, 0%, 100%, 0.075),
+        0 0 0 1px hsla(0, 0%, 0%, 0.05),
+        0 0.3px 0.4px hsla(0, 0%, 0%, 0.02),
+        0 0.9px 1.5px hsla(0, 0%, 0%, 0.045),
+        0 3.5px 6px hsla(0, 0%, 0%, 0.09);
+      backdrop-filter: blur(24px) saturate(150%);
+      -webkit-backdrop-filter: blur(24px) saturate(150%);
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0 0.45rem;
+    }
+
+    :global(html[data-page="blog-post"][data-post-theme="paper"]) .post-tools,
+    :global(html[data-page="blog-post"].light) .post-tools {
+      border-color: rgba(70, 50, 20, 0.22);
+      background: rgba(255, 255, 255, 0.45);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.55) inset,
+        0 24px 42px -24px rgba(40, 25, 0, 0.32);
+    }
+
+    :global(html[data-page="blog-post"][data-post-theme="paper"]) .post-tool-btn,
+    :global(html[data-page="blog-post"].light) .post-tool-btn {
+      border-color: rgba(70, 50, 20, 0.22);
+      background: rgba(255, 255, 255, 0.45);
+      color: #2a1f10;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .post-tools,
+    .post-tool-backdrop {
+      display: none !important;
+    }
+  }
+</style>
