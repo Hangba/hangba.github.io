@@ -15,7 +15,7 @@ const { title, pubDate, description, image } = post.data;
       image && image.url && (
         <>
           <Image
-            class="self-start"
+            class="self-center sm:self-start"
             src={image.url}
             alt={image.alt || ""}
             width={300}

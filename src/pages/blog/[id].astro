@@ -190,8 +190,49 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
           .slice(0, 40);
         el.id = `post-node-${seed || "section"}-${index}`;
       }
-      return { el, text, id: el.id };
+      const sectionHeading = el.closest("section, article")?.querySelector("h2, h3, h4");
+      const headingText = sectionHeading?.textContent?.trim();
+      return {
+        el,
+        text,
+        id: el.id,
+        tagName: el.tagName.toLowerCase(),
+        headingText: headingText && headingText !== text ? headingText : ""
+      };
     }).filter(Boolean);
+
+    const buildSnippet = (text, query) => {
+      const lowerText = text.toLowerCase();
+      const index = lowerText.indexOf(query);
+      const snippetRadius = 32;
+      if (index === -1) {
+        return text.length > 72 ? `${text.slice(0, 72).trim()}...` : text;
+      }
+
+      const start = Math.max(0, index - snippetRadius);
+      const end = Math.min(text.length, index + query.length + snippetRadius);
+      const prefix = start > 0 ? "..." : "";
+      const suffix = end < text.length ? "..." : "";
+      return `${prefix}${text.slice(start, end).trim()}${suffix}`;
+    };
+
+    const appendHighlightedText = (container, text, query) => {
+      const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(`(${safeQuery})`, "ig");
+      const fragments = text.split(regex);
+
+      fragments.forEach((fragment) => {
+        if (!fragment) return;
+        if (fragment.toLowerCase() === query.toLowerCase()) {
+          const mark = document.createElement("mark");
+          mark.className = "post-search-mark";
+          mark.textContent = fragment;
+          container.appendChild(mark);
+          return;
+        }
+        container.appendChild(document.createTextNode(fragment));
+      });
+    };
 
     const clearResults = (message) => {
       results.innerHTML = "";
@@ -226,10 +267,24 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
       results.innerHTML = "";
       matches.forEach((item) => {
         const li = document.createElement("li");
+        li.className = "post-search-result-item";
+
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "post-search-result-btn";
-        btn.textContent = item.text;
+
+        const excerpt = document.createElement("span");
+        excerpt.className = "post-search-result-excerpt";
+        appendHighlightedText(excerpt, buildSnippet(item.text, query), query);
+
+        if (item.headingText) {
+          const heading = document.createElement("span");
+          heading.className = "post-search-result-heading";
+          heading.textContent = item.headingText;
+          btn.append(heading);
+        }
+
+        btn.append(excerpt);
         btn.addEventListener("click", () => jumpToElement(item.el));
         li.appendChild(btn);
         results.appendChild(li);
@@ -432,8 +487,8 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   .post-side-panel {
     border: 1px solid rgba(255, 255, 255, 0.16);
     background: rgba(12, 12, 16, 0.34);
-    backdrop-filter: blur(20px) saturate(130%);
-    -webkit-backdrop-filter: blur(20px) saturate(130%);
+    backdrop-filter: blur(42px) saturate(155%);
+    -webkit-backdrop-filter: blur(42px) saturate(155%);
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.08) inset,
       0 18px 34px -26px rgba(0, 0, 0, 0.72);
@@ -472,9 +527,13 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 0.35rem;
+    gap: 0.5rem;
     max-height: 48vh;
     overflow: auto;
+  }
+
+  .post-search-result-item {
+    margin: 0;
   }
 
   .post-search-empty {
@@ -485,17 +544,60 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
   .post-search-result-btn {
     width: 100%;
     text-align: left;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: grid;
+    gap: 0.28rem;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-left: 3px solid rgba(255, 255, 255, 0.22);
+    border-radius: 0.7rem;
     color: rgba(245, 241, 234, 0.92);
-    padding: 0.35rem 0.45rem;
+    padding: 0.55rem 0.65rem;
     font-size: 0.78rem;
     cursor: pointer;
+    transition:
+      border-color 180ms ease,
+      background 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease;
   }
 
-  .post-search-result-btn:hover {
-    border-color: rgba(255, 255, 255, 0.28);
-    background: rgba(255, 255, 255, 0.08);
+  .post-search-result-heading {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(245, 241, 234, 0.62);
+  }
+
+  .post-search-result-excerpt {
+    display: -webkit-box;
+    overflow: hidden;
+    color: rgba(245, 241, 234, 0.93);
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .post-search-mark {
+    background: rgba(255, 214, 107, 0.28);
+    color: inherit;
+    padding: 0 0.08rem;
+    border-radius: 0.2rem;
+  }
+
+  .post-search-result-btn:hover,
+  .post-search-result-btn:focus-visible {
+    border-color: rgba(255, 255, 255, 0.34);
+    border-left-color: var(--planet-accent, #e2d1c3);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+    transform: translateY(-1px);
+  }
+
+  .post-search-result-btn:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.34);
+    outline-offset: 2px;
   }
 
   .post-outline ol {
@@ -971,13 +1073,24 @@ const dateLabel = new Date(pubDate).toLocaleDateString("en-US", {
 
   :global(html[data-post-theme="paper"]) .post-search-result-btn {
     border-color: rgba(70, 50, 20, 0.18);
-    background: rgba(255, 255, 255, 0.42);
+    border-left-color: rgba(139, 90, 32, 0.28);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.5));
     color: #2d2110;
   }
 
-  :global(html[data-post-theme="paper"]) .post-search-result-btn:hover {
+  :global(html[data-post-theme="paper"]) .post-search-result-heading {
+    color: rgba(60, 45, 20, 0.58);
+  }
+
+  :global(html[data-post-theme="paper"]) .post-search-mark {
+    background: rgba(214, 160, 79, 0.28);
+  }
+
+  :global(html[data-post-theme="paper"]) .post-search-result-btn:hover,
+  :global(html[data-post-theme="paper"]) .post-search-result-btn:focus-visible {
     border-color: rgba(139, 90, 32, 0.34);
-    background: rgba(255, 255, 255, 0.6);
+    border-left-color: rgba(139, 90, 32, 0.62);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.68));
   }
 
   :global(html[data-post-theme="paper"]) .post-outline .outline-item a:hover,

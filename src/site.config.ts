@@ -119,26 +119,7 @@ const siteConfig: SiteConfig = {
     },
     about: {
         title: 'About',
-        text: 'An undergraduate student major in Space Science and Technology at Harbin Institute of Technology, Shenzhen, with a concentration in planetary science.',
-    },
-    contactInfo: {
-        title: 'Contact',
-        text: "Hi! Whether you have a question, a suggestion, or just want to share your thoughts, I'm all ears. Feel free to get in touch through any of the methods below:",
-        email: {
-            text: "Drop me an email and I’ll do my best to respond as soon as possible.",
-            href: "mailto:hangbamaybe@gmail.com",
-            email: "hangbamaybe@gmail.com"
-        },
-        socialProfiles: [
-            {
-                text: "Bilibili",
-                href: "https://space.bilibili.com/38787868"
-            },
-            {
-                text: "GitHub",
-                href: "https://github.com/hangba"
-            }
-        ]
+        text: 'An undergraduate student major in Space Science and Technology at Harbin Institute of Technology, Shenzhen, with a concentration in planetary science.Whether you have a question, a suggestion, or just want to share your thoughts, I\'m all ears. Feel free to get in touch through the links below.',
     },
     blog: {
         description: "Explore the unknown."

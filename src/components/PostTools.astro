@@ -11,7 +11,10 @@
     aria-expanded="false"
     title="Search"
   >
-    ⌕
+    <svg class="post-tool-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="11" cy="11" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
+      <path d="M15.25 15.25 19 19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+    </svg>
   </button>
   <button
     id="post-outline-toggle"
@@ -21,7 +24,12 @@
     aria-expanded="false"
     title="Structure"
   >
-    ≡
+    <svg class="post-tool-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 7.25h12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+      <path d="M6 12h8.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+      <path d="M6 16.75h10.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+      <circle cx="17.75" cy="12" r="1.2" fill="currentColor"></circle>
+    </svg>
   </button>
 </div>
 <button id="post-tool-backdrop" class="post-tool-backdrop" type="button" aria-label="Close panels"></button>
@@ -30,6 +38,7 @@
   declare global {
     interface Window {
       _postToolsEscBound?: boolean;
+      _postToolsPointerBound?: boolean;
     }
   }
 
@@ -38,6 +47,8 @@
     const searchBtn = document.getElementById("post-search-toggle");
     const outlineBtn = document.getElementById("post-outline-toggle");
     const backdrop = document.getElementById("post-tool-backdrop");
+    const searchPanel = document.querySelector(".post-side-left .post-side-panel");
+    const outlinePanel = document.querySelector(".post-side-right .post-side-panel");
     if (!searchBtn || !outlineBtn || !backdrop) return;
 
     const SEARCH_OPEN = "mobile-search-panel-open";
@@ -81,9 +92,37 @@
       outlineBtn.addEventListener("click", toggleOutline);
     }
 
-    if ((backdrop as HTMLButtonElement).dataset.boundPostTools !== "1") {
-      (backdrop as HTMLButtonElement).dataset.boundPostTools = "1";
-      backdrop.addEventListener("click", closePanels);
+    if (!window._postToolsPointerBound) {
+      window._postToolsPointerBound = true;
+      document.addEventListener("pointerdown", (event) => {
+        if (
+          !root.classList.contains(SEARCH_OPEN) &&
+          !root.classList.contains(OUTLINE_OPEN)
+        ) {
+          return;
+        }
+
+        const target = event.target;
+        if (!(target instanceof Node)) return;
+
+        const insideSearchPanel =
+          searchPanel instanceof HTMLElement && searchPanel.contains(target);
+        const insideOutlinePanel =
+          outlinePanel instanceof HTMLElement && outlinePanel.contains(target);
+        const insideSearchButton = searchBtn.contains(target);
+        const insideOutlineButton = outlineBtn.contains(target);
+
+        if (
+          insideSearchPanel ||
+          insideOutlinePanel ||
+          insideSearchButton ||
+          insideOutlineButton
+        ) {
+          return;
+        }
+
+        closePanels();
+      });
     }
 
     if (!window._postToolsEscBound) {
@@ -124,6 +163,12 @@
     cursor: pointer;
   }
 
+  .post-tool-icon {
+    width: 1.05rem;
+    height: 1.05rem;
+    flex: none;
+  }
+
   .post-tool-backdrop {
     display: none;
   }
@@ -138,9 +183,10 @@
     background: transparent;
     padding: 0;
     margin: 0;
+    pointer-events: none;
   }
 
-  @media (orientation: portrait) {
+  @media (max-width: 1279px) {
     :global(html[data-page="blog-post"]) :global(#site-header.nav-scrolled) .post-tools {
       display: inline-flex;
       position: fixed;
@@ -182,7 +228,7 @@
     }
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 1280px) {
     .post-tools,
     .post-tool-backdrop {
       display: none !important;

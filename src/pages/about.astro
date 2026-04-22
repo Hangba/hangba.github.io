@@ -2,7 +2,7 @@
 import { Image } from "astro:assets";
 import MainLayout from "../layouts/MainLayout.astro";
 import siteConfig from "../site.config";
-import coverImage from "../assets/images/1.png";
+import coverImage from "../assets/images/pixeltrue-space-discovery.svg";
 ---
 
 <MainLayout activePage="about" pageTitle={siteConfig.title + " | About"}>
@@ -10,11 +10,11 @@ import coverImage from "../assets/images/1.png";
     <h1 class="sigmar-ff text-balance" data-reveal style="--reveal-delay:0ms">{siteConfig.about?.title}</h1>
     <div data-reveal style="--reveal-delay:120ms">
       <Image
-        width={1024}
-        height={600}
+        width={820}
+        height={480}
         loading="eager"
         layout="constrained"
-        class="rounded-4xl mb-8 mx-auto"
+        class="rounded-4xl mb-8 mx-auto w-full max-w-[820px]"
         src={coverImage}
         alt="An Astronaut walking on a terrain"
       />
