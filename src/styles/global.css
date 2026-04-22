@@ -216,6 +216,10 @@ img {
   @apply h-auto max-w-full rounded-xl;
 }
 
+.blog-body img.img-center {
+  @apply mx-auto block;
+}
+
 /* links */
 a.button-link:not(:disabled),
 button.button-link:not(:disabled) {

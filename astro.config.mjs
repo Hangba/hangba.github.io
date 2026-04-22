@@ -1,6 +1,7 @@
 import { defineConfig } from "astro/config";
 import preact from "@astrojs/preact";
 import sitemap from "@astrojs/sitemap";
+import remarkAttrs from "remark-attrs";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
@@ -13,7 +14,7 @@ export default defineConfig({
   integrations: [preact(), sitemap()],
 
   markdown: {
-    remarkPlugins: [remarkMath],
+    remarkPlugins: [remarkMath, remarkAttrs],
     rehypePlugins: [rehypeKatex],
   },
 
