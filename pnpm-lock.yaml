@@ -29,6 +29,9 @@ importers:
       rehype-katex:
         specifier: ^7.0.1
         version: 7.0.1
+      remark-attrs:
+        specifier: ^1.0.0
+        version: 1.0.0
       remark-math:
         specifier: ^6.0.0
         version: 6.0.0
@@ -1643,6 +1646,9 @@ packages:
 
   rehype@13.0.2:
     resolution: {integrity: sha512-j31mdaRFrwFRUIlxGeuPXXKWQxet52RBQRvCmzl5eCefn/KGbomK5GMHNMsOJf55fgo3qw5tST5neDuarDYR2A==}
+
+  remark-attrs@1.0.0:
+    resolution: {integrity: sha512-PoPoXeVXjmwaRBjCjo7lCINBCTzU1JhGCdHU7Mw99jkYT/dceQ3R+kV7r+9XKtfYllFOIbyDarSBeRbit6M0vg==}
 
   remark-gfm@4.0.1:
     resolution: {integrity: sha512-1quofZ2RQ9EWdeN34S79+KExV1764+wCUGop5CPL1WGdD0ocPpu91lzPGbwWMECpEpd42kJGQwzRfyov9j4yNg==}
@@ -3780,6 +3786,10 @@ snapshots:
       rehype-parse: 9.0.1
       rehype-stringify: 10.0.1
       unified: 11.0.5
+
+  remark-attrs@1.0.0:
+    dependencies:
+      unist-util-visit: 5.1.0
 
   remark-gfm@4.0.1:
     dependencies:
