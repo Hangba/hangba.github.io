@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 import siteConfig from "../site.config";
 import { withBase } from "../utils/helpers";
 
@@ -18,11 +17,15 @@ const {
   textSize = "text-base",
   class: customClass,
 }: SiteIdentityProps = Astro.props;
+
+const lowResLogo = withBase("/logo-500p.png?v=2");
+const highResLogo = withBase("/logo.png?v=2");
 ---
 
 <div class:list={["flex items-center gap-2", customClass]}>
-  <Image
-    src={withBase("/space-ahead-logo.png")}
+  <img
+    src={lowResLogo}
+    data-high-res-src={highResLogo}
     alt="Logo"
     width={logoWidth}
     height={logoHeight}
@@ -30,3 +33,34 @@ const {
   />
   <span class:list={["sigmar-ff", textSize]}>{siteConfig.title}</span>
 </div>
+
+<script>
+  const upgradeLogos = () => {
+    document.querySelectorAll<HTMLImageElement>("img[data-high-res-src]").forEach((logo) => {
+      const highResSrc = logo.dataset.highResSrc;
+
+      if (!highResSrc || logo.src.endsWith(highResSrc)) return;
+
+      const highResLogo = new window.Image();
+      highResLogo.decoding = "async";
+      highResLogo.onload = () => {
+        logo.src = highResSrc;
+      };
+      highResLogo.src = highResSrc;
+    });
+  };
+
+  const scheduleLogoUpgrade = () => {
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(upgradeLogos, { timeout: 3000 });
+    } else {
+      window.setTimeout(upgradeLogos, 1500);
+    }
+  };
+
+  if (document.readyState === "complete") {
+    scheduleLogoUpgrade();
+  } else {
+    window.addEventListener("load", scheduleLogoUpgrade, { once: true });
+  }
+</script>

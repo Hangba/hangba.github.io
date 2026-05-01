@@ -67,6 +67,8 @@ const planetThemeMap = Object.fromEntries(
         },
     ])
 );
+const lowResLogo = withBase("/logo-500p.png?v=2");
+const highResLogo = withBase("/logo.png?v=2");
 ---
 
 <!doctype html>
@@ -80,7 +82,15 @@ const planetThemeMap = Object.fromEntries(
 >
     <head>
         <meta charset="utf-8" />
-        <link rel="icon" href={withBase(`/space-ahead-logo.png`)} />
+        <link
+            id="site-favicon"
+            rel="icon"
+            type="image/png"
+            sizes="500x500"
+            href={lowResLogo}
+            data-high-res-href={highResLogo}
+        />
+        <link rel="apple-touch-icon" href={lowResLogo} />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
         <meta name="theme-color" content={statusBarColor} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -207,6 +217,37 @@ const planetThemeMap = Object.fromEntries(
         </main>
         <script>
             import "../scripts/planet-stage";
+        </script>
+        <script>
+            const upgradeFavicon = () => {
+                const favicon = document.querySelector<HTMLLinkElement>(
+                    'link[rel="icon"][data-high-res-href]'
+                );
+                const highResHref = favicon?.dataset.highResHref;
+
+                if (!favicon || !highResHref || favicon.href.endsWith(highResHref)) return;
+
+                const highResIcon = new window.Image();
+                highResIcon.decoding = "async";
+                highResIcon.onload = () => {
+                    favicon.href = highResHref;
+                };
+                highResIcon.src = highResHref;
+            };
+
+            const scheduleFaviconUpgrade = () => {
+                if ("requestIdleCallback" in window) {
+                    window.requestIdleCallback(upgradeFavicon, { timeout: 3000 });
+                } else {
+                    window.setTimeout(upgradeFavicon, 1500);
+                }
+            };
+
+            if (document.readyState === "complete") {
+                scheduleFaviconUpgrade();
+            } else {
+                window.addEventListener("load", scheduleFaviconUpgrade, { once: true });
+            }
         </script>
     </body>
 </html>
