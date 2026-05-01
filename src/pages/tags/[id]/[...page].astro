@@ -22,7 +22,7 @@ export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
     const filteredPosts = getPostsByTag(posts, tag.id);
     return paginate(filteredPosts, {
       params: { id: tag.id },
-      pageSize: siteConfig.postsPerPage || 2,
+      pageSize: siteConfig.postsPerPage || 5,
     });
   });
 }
@@ -52,7 +52,7 @@ const currentTag = allTags.find((tag) => {
       </div>
     </div>
 
-    <div class="magazine-frame text-left" data-reveal style="--reveal-delay:80ms">
+    <div class="magazine-frame tag-post-list-frame text-left" data-reveal style="--reveal-delay:80ms">
       <div class="flex flex-col gap-8">
         {blog.map((post) => <PostListPreview post={post} />)}
       </div>

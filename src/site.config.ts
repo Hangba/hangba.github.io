@@ -119,12 +119,12 @@ const siteConfig: SiteConfig = {
     },
     about: {
         title: 'About',
-        text: 'An undergraduate student major in Space Science and Technology at Harbin Institute of Technology, Shenzhen, with a concentration in planetary science.Whether you have a question, a suggestion, or just want to share your thoughts, I\'m all ears. Feel free to get in touch through the links below.',
+        text: 'I\'m an undergraduate student major in Space Science and Technology at Harbin Institute of Technology, Shenzhen, with a concentration in planetary science. Whether you have a question, a suggestion, or just want to share your thoughts, I\'m all ears. Feel free to get in touch through the links below.',
     },
     blog: {
         description: "Explore the unknown."
     },
-    postsPerPage: 2,
+    postsPerPage: 5,
     recentPostLimit: 3
 };
 

@@ -12,14 +12,14 @@ export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   const blogs = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
     sortItemsByDateDesc
   );
-  return paginate(blogs, { pageSize: siteConfig.postsPerPage || 2 });
+  return paginate(blogs, { pageSize: siteConfig.postsPerPage || 5 });
 }
 
 type Props = { page: Page<CollectionEntry<"blogs">> };
 
 const { page } = Astro.props;
 const allPosts = page.data;
-const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 2);
+const startIndex = (page.currentPage - 1) * (siteConfig.postsPerPage || 5);
 ---
 
 <MainLayout activePage="blog" pageTitle={siteConfig.title + " | Blog Archive"}>

@@ -20,16 +20,16 @@ const TitleTag = headingLevel;
   href={withBase("/blog/" + post.id)}
 >
   <div class="grow">
-    <TitleTag class="sigmar-ff">{title}</TitleTag>
+    <TitleTag class="post-list-title sigmar-ff">{title}</TitleTag>
     <div class="post-list-meta">
       <FormattedDate date={pubDate} />
       <span aria-hidden="true">&middot;</span>
       <span>{formatReadingTime(post)}</span>
     </div>
-    {description && <p>{description}</p>}
+    {description && <p class="post-list-description">{description}</p>}
   </div>
   <div
-    class="hidden opacity-0 transition group-hover:opacity-100 sm:inline-flex sm:gap-4 sm:items-center sm:self-center sm:shrink-0"
+    class="post-list-cta hidden opacity-0 transition group-hover:opacity-100 sm:inline-flex sm:gap-4 sm:items-center sm:self-center sm:shrink-0"
   >
     Read Post <ArrowRight class="fill-current w-4 h-4" />
   </div>
@@ -43,5 +43,51 @@ const TitleTag = headingLevel;
     color: rgba(245, 241, 234, 0.68);
     font-size: 0.9rem;
     font-weight: 300;
+  }
+
+  .post-list-description {
+    color: rgba(245, 241, 234, 0.78);
+  }
+
+  :global(html[data-post-theme="paper"]) .post-list-title {
+    color: #6b4a18;
+  }
+
+  :global(html[data-post-theme="paper"]) .post-list-meta,
+  :global(html[data-post-theme="paper"]) .post-list-description,
+  :global(html[data-post-theme="paper"]) .post-list-cta {
+    color: rgba(50, 35, 15, 0.78);
+  }
+
+  :global(html[data-post-theme="paper"]) a:hover .post-list-title,
+  :global(html[data-post-theme="paper"]) a:hover .post-list-cta {
+    color: #8b5a20;
+  }
+
+  :global(html[data-post-theme="texture"]) .post-list-title {
+    color: #f5f1ea;
+  }
+
+  :global(html[data-post-theme="texture"]) .post-list-meta {
+    color: rgba(245, 241, 234, 0.68);
+  }
+
+  :global(html[data-post-theme="texture"]) .post-list-description {
+    color: rgba(245, 241, 234, 0.78);
+  }
+
+  :global(.tag-post-list-frame) .post-list-title {
+    color: #6b4a18;
+  }
+
+  :global(.tag-post-list-frame) .post-list-meta,
+  :global(.tag-post-list-frame) .post-list-description,
+  :global(.tag-post-list-frame) .post-list-cta {
+    color: rgba(50, 35, 15, 0.78);
+  }
+
+  :global(.tag-post-list-frame) a:hover .post-list-title,
+  :global(.tag-post-list-frame) a:hover .post-list-cta {
+    color: #8b5a20;
   }
 </style>

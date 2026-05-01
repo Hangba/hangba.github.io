@@ -1,12 +1,13 @@
 ---
-type Props = { date: Date };
+type Props = { date: Date | string };
 
 const { date } = Astro.props;
+const formattedDate = new Date(date);
 ---
 
-<time class="text-xs" datetime={date.toISOString()}>
+<time datetime={formattedDate.toISOString()}>
   {
-    date.toLocaleDateString("en-us", {
+    formattedDate.toLocaleDateString("en-us", {
       year: "numeric",
       month: "long",
       day: "numeric",
