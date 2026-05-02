@@ -41,6 +41,25 @@ const { activePage } = Astro.props;
     document.documentElement.dataset.mobileMenuExpanded = isExpanded ? "true" : "false";
   }
 
+  function closeMobileMenu(mobile = document.querySelector("#mobile-links")) {
+    if (!(mobile instanceof HTMLElement)) {
+      setMobileMenuExpanded(false);
+      return;
+    }
+
+    if (
+      !mobile.classList.contains("expanded") &&
+      document.documentElement.dataset.mobileMenuExpanded !== "true"
+    ) {
+      setMobileMenuExpanded(false);
+      return;
+    }
+
+    mobile.classList.add("slideOutUp", "expanded");
+    mobile.classList.remove("slideInDown");
+    setMobileMenuExpanded(false);
+  }
+
   function bindNav() {
     const ham = document.querySelector("#hamburger-menu");
     const close = document.querySelector(".close-menu");
@@ -69,10 +88,7 @@ const { activePage } = Astro.props;
     if ((close as HTMLElement).dataset.boundNav !== "1") {
       (close as HTMLElement).dataset.boundNav = "1";
       close.addEventListener("click", () => {
-        mobile.classList.add("slideOutUp");
-        mobile.classList.add("expanded");
-        mobile.classList.remove("slideInDown");
-        setMobileMenuExpanded(false);
+        closeMobileMenu(mobile);
       });
     }
   }
@@ -91,6 +107,7 @@ const { activePage } = Astro.props;
         if (!isScrolled && window.scrollY > 90) {
           isScrolled = true;
           currentHeader.classList.add('nav-scrolled');
+          closeMobileMenu();
         } else if (isScrolled && window.scrollY < 50) {
           isScrolled = false;
           currentHeader.classList.remove('nav-scrolled');

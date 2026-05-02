@@ -70,12 +70,85 @@ const SPHERE_FILL = 0.85;
 // the camera, not the CSS container, so it cannot be fixed by enlarging the
 // stage. Use the per-page `--p-s` CSS scale to make Saturn visually larger.
 const RING_SPHERE_FILL = 0.52;
+// Margin so the ring doesn't kiss the frustum edges in either axis.
+const RING_FIT_MARGIN = 1.08;
 
 function cameraDistanceFor(aspect: number, fillFactor = SPHERE_FILL): number {
     const halfV = (CAMERA_FOV / 2) * (Math.PI / 180);
     const halfH = Math.atan(Math.tan(halfV) * aspect);
     const halfMin = Math.min(halfV, halfH);
     return 1 / Math.tan(halfMin * fillFactor);
+}
+
+/**
+ * Read the CSS `--p-r` custom property (the per-page planet roll, e.g. Saturn
+ * uses `12deg` on home) as radians. The 3D scene is rendered upright, then CSS
+ * rotates the canvas as a 2D image — that rotation enlarges the ring's
+ * axis-aligned bounding box, so we must factor it into the camera distance.
+ */
+function readCssPlanetRotateRad(): number {
+    if (typeof document === "undefined") return 0;
+    try {
+        const value = getComputedStyle(document.documentElement)
+            .getPropertyValue("--p-r")
+            .trim();
+        if (!value) return 0;
+        const match = value.match(/^(-?\d*\.?\d+)(deg|rad|turn|grad)?$/);
+        if (!match) return 0;
+        const num = parseFloat(match[1]);
+        switch (match[2] || "deg") {
+            case "deg": return (num * Math.PI) / 180;
+            case "rad": return num;
+            case "turn": return num * 2 * Math.PI;
+            case "grad": return (num * Math.PI) / 200;
+            default: return 0;
+        }
+    } catch {
+        return 0;
+    }
+}
+
+/**
+ * Camera distance that keeps both the sphere and (if present) the ring inside
+ * the frustum. The default `cameraDistanceFor` only sizes against the sphere
+ * (radius 1); for ringed planets we must also fit the ring's axis-aligned
+ * bounding box, which depends on:
+ *   - the ring's outer radius (horizontal extent in body space),
+ *   - the planet's 3D tilt (squashes vertical extent to ringR · |sin(tilt)|),
+ *   - any CSS roll applied to the canvas (`--p-r`), which rotates the rendered
+ *     image and grows the AABB on both axes.
+ * In portrait the horizontal frustum becomes narrow and clips the ring unless
+ * we push the camera back beyond the sphere-fill distance.
+ */
+function cameraDistanceForPlanet(
+    aspect: number,
+    planet: Planet,
+    cssRotateRad = 0
+): number {
+    const baseFill = planet.ringMap ? RING_SPHERE_FILL : SPHERE_FILL;
+    let distance = cameraDistanceFor(aspect, baseFill);
+
+    if (planet.ringMap && planet.ringOuterRadius) {
+        const halfV = (CAMERA_FOV / 2) * (Math.PI / 180);
+        const halfH = Math.atan(Math.tan(halfV) * aspect);
+        const tiltRad = ((planet.tiltDeg ?? 0) * Math.PI) / 180;
+        const ringR = planet.ringOuterRadius;
+        // Ring projected into the camera plane: horizontal = ringR,
+        // vertical = ringR · |sin(tilt)|.
+        const projH = ringR;
+        const projV = ringR * Math.abs(Math.sin(tiltRad));
+        // CSS rolls the rendered image by `cssRotateRad`, so the AABB of the
+        // projected ring grows according to standard 2D rotation:
+        const cosR = Math.abs(Math.cos(cssRotateRad));
+        const sinR = Math.abs(Math.sin(cssRotateRad));
+        const aabbH = projH * cosR + projV * sinR;
+        const aabbV = projH * sinR + projV * cosR;
+        const dH = (aabbH * RING_FIT_MARGIN) / Math.tan(halfH);
+        const dV = (aabbV * RING_FIT_MARGIN) / Math.tan(halfV);
+        distance = Math.max(distance, dH, dV);
+    }
+
+    return distance;
 }
 
 function reduced(): boolean {
@@ -250,9 +323,13 @@ function upgradeToHQ(loader: THREE.TextureLoader, stage: StageState) {
 function applyCameraFill(s: StageState) {
     const w = s.stageEl.clientWidth || window.innerWidth;
     const h = s.stageEl.clientHeight || window.innerHeight;
-    const fill = s.planet.ringMap ? RING_SPHERE_FILL : SPHERE_FILL;
-    s.camera.aspect = w / h;
-    s.camera.position.z = cameraDistanceFor(w / h, fill);
+    const aspect = w / h;
+    s.camera.aspect = aspect;
+    s.camera.position.z = cameraDistanceForPlanet(
+        aspect,
+        s.planet,
+        readCssPlanetRotateRad()
+    );
     s.camera.updateProjectionMatrix();
 }
 
@@ -557,9 +634,12 @@ function startThree(stage: HTMLElement, planet: Planet) {
     const scene = new THREE.Scene();
     const starScene = new THREE.Scene();
 
-    const fillFactor = planet.ringMap ? RING_SPHERE_FILL : SPHERE_FILL;
     const camera = new THREE.PerspectiveCamera(CAMERA_FOV, w / h, 0.1, 100);
-    camera.position.set(0, 0, cameraDistanceFor(w / h, fillFactor));
+    camera.position.set(
+        0,
+        0,
+        cameraDistanceForPlanet(w / h, planet, readCssPlanetRotateRad())
+    );
     const starCamera = new THREE.PerspectiveCamera(CAMERA_FOV, w / h, 0.1, 300);
     starCamera.position.set(0, 0, 1);
 

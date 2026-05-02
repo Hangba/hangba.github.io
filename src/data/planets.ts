@@ -14,7 +14,7 @@ export type Planet = {
     tiltDeg?: number;
     // Blog-post body theme when this planet is active:
     //   "paper"   — warm cream background, dark serif text (Venus/Saturn/Jupiter)
-    //   "texture" — tiled sphere colorMap background, white text on blur (Moon/Mercury)
+    //   "texture" — tiled sphere colorMap background, white text on blur (Moon/Mercury/Mars/Adrian)
     postTheme?: "paper" | "texture";
     // Earth-style cloud overlay (second sphere, alpha-mapped)
     cloudMap?: string;
@@ -78,6 +78,19 @@ export const planets: Planet[] = [
         ambientLight: 0.07,
         sunIntensity: 2.3,
         tiltDeg: 25.2,
+        postTheme: "texture",
+    },
+    {
+        id: "adrian",
+        name: "Adrian",
+        colorMap: withBase("/textures/adrian_1k.jpg"),
+        colorMapHQ: withBase("/textures/adrian_4k.jpg"),
+        themeColor: "#7fb345",
+        accentColor: "#d7ef8e",
+        rotationSpeed: 0.00022,
+        ambientLight: 0.12,
+        sunIntensity: 2.25,
+        tiltDeg: 16,
         postTheme: "texture",
     },
     {

@@ -47,17 +47,18 @@
     const searchBtn = document.getElementById("post-search-toggle");
     const outlineBtn = document.getElementById("post-outline-toggle");
     const backdrop = document.getElementById("post-tool-backdrop");
-    const searchPanel = document.querySelector(".post-side-left .post-side-panel");
-    const outlinePanel = document.querySelector(".post-side-right .post-side-panel");
     if (!searchBtn || !outlineBtn || !backdrop) return;
 
     const SEARCH_OPEN = "mobile-search-panel-open";
     const OUTLINE_OPEN = "mobile-outline-panel-open";
 
-    const closePanels = () => {
+    const closePanels = (
+      currentSearchBtn = document.getElementById("post-search-toggle"),
+      currentOutlineBtn = document.getElementById("post-outline-toggle")
+    ) => {
       root.classList.remove(SEARCH_OPEN, OUTLINE_OPEN);
-      searchBtn.setAttribute("aria-expanded", "false");
-      outlineBtn.setAttribute("aria-expanded", "false");
+      currentSearchBtn?.setAttribute("aria-expanded", "false");
+      currentOutlineBtn?.setAttribute("aria-expanded", "false");
     };
 
     const toggleSearch = () => {
@@ -105,12 +106,18 @@
         const target = event.target;
         if (!(target instanceof Node)) return;
 
+        const currentSearchPanel = document.querySelector(".post-side-left .post-side-panel");
+        const currentOutlinePanel = document.querySelector(".post-side-right .post-side-panel");
+        const currentSearchBtn = document.getElementById("post-search-toggle");
+        const currentOutlineBtn = document.getElementById("post-outline-toggle");
         const insideSearchPanel =
-          searchPanel instanceof HTMLElement && searchPanel.contains(target);
+          currentSearchPanel instanceof HTMLElement && currentSearchPanel.contains(target);
         const insideOutlinePanel =
-          outlinePanel instanceof HTMLElement && outlinePanel.contains(target);
-        const insideSearchButton = searchBtn.contains(target);
-        const insideOutlineButton = outlineBtn.contains(target);
+          currentOutlinePanel instanceof HTMLElement && currentOutlinePanel.contains(target);
+        const insideSearchButton =
+          currentSearchBtn instanceof HTMLElement && currentSearchBtn.contains(target);
+        const insideOutlineButton =
+          currentOutlineBtn instanceof HTMLElement && currentOutlineBtn.contains(target);
 
         if (
           insideSearchPanel ||
@@ -121,7 +128,7 @@
           return;
         }
 
-        closePanels();
+        closePanels(currentSearchBtn, currentOutlineBtn);
       });
     }
 

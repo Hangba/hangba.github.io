@@ -151,6 +151,33 @@ html.dark[data-post-theme="texture"]:not([data-page="home"]) body > * {
   z-index: 1;
 }
 
+/* Adrian theme: use its planet texture as the non-home backdrop, softened with
+   a stronger 10px blur pass behind the page chrome. */
+html.dark[data-planet-id="adrian"][data-post-theme="texture"]:not([data-page="home"]) {
+  background-color: #07110a;
+  background-image:
+    linear-gradient(180deg, rgba(7, 12, 8, 0.58) 0%, rgba(5, 8, 6, 0.76) 100%),
+    var(--planet-texture);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+html.dark[data-planet-id="adrian"][data-post-theme="texture"]:not([data-page="home"]) body::before {
+  inset: -24px;
+  background-image:
+    radial-gradient(circle at 28% 22%, rgba(215, 239, 142, 0.18), transparent 42%),
+    linear-gradient(180deg, rgba(7, 12, 8, 0.42) 0%, rgba(5, 8, 6, 0.72) 100%),
+    var(--planet-texture);
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px);
+  transform: scale(1.03);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 /* Jupiter non-home pages: enforce deep-brown typography */
 html.dark[data-planet-id="jupiter"]:not([data-page="home"]) body {
   color: #2d2316;
