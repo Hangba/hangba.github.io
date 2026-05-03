@@ -1,0 +1,225 @@
+---
+/**
+ * HomeEasterEgg
+ * -------------
+ * After the homepage sits idle for 20 seconds in landscape orientation, the
+ * planet drifts further to the right and a small panel slides in from the left
+ * with a planet-specific tagline.
+ *
+ * Safety: the tagline strings are *not* rendered into the DOM at build time —
+ * they live in a JS map below and are only injected once
+ * `document.documentElement.dataset.planetReady === "true"`. That avoids
+ * leaking the surprise text via "view source" or via a flash of un-styled
+ * content while the planet textures are still loading.
+ */
+---
+
+<aside id="home-easter-egg" aria-hidden="true">
+    <div class="egg-frame">
+        <p class="egg-line"></p>
+    </div>
+</aside>
+
+<script>
+    // Eggs only fire for planets that have a tagline. Each entry below is a
+    // planet-specific reference; planets without an entry never reveal.
+    const EASTER_EGG_LINES: Record<string, string> = {
+        moon: "不理他小爱与大爱，人类太过渺小的最爱",
+        mercury: "发梦有附送",
+        mars: "怪物无尽",
+        venus: "引力那样重",
+        saturn: "行为迟钝",
+        jupiter: "I\'m sorry, Dave. I\'m afraid I can\'t do that.",
+        adrian: "That\'ll do, Adrian. That\'ll do.",
+    };
+
+    const IDLE_MS = 20000;
+    const ROOT = document.documentElement;
+
+    let idleTimer: number | undefined;
+    let installed = false;
+
+    function isHome(): boolean {
+        return ROOT.dataset.page === "home";
+    }
+
+    function isLandscape(): boolean {
+        // Match: viewport wider than tall *and* not a tiny phone — the panel
+        // needs enough room on the left side to read.
+        if (typeof window === "undefined") return false;
+        if (!window.matchMedia("(orientation: landscape)").matches) return false;
+        return window.innerWidth >= 768;
+    }
+
+    function planetReady(): boolean {
+        return ROOT.dataset.planetReady === "true";
+    }
+
+    function activate(): void {
+        if (!isHome() || !isLandscape() || !planetReady()) return;
+        const id = ROOT.dataset.planetId;
+        if (!id) return;
+        const line = EASTER_EGG_LINES[id];
+        if (!line) return; // No tagline for this planet — keep silent.
+
+        const el = document.querySelector<HTMLElement>(
+            "#home-easter-egg .egg-line"
+        );
+        if (!el) return;
+        el.textContent = line; // Inject only now — never leaked at build time.
+        ROOT.dataset.easterEgg = id;
+    }
+
+    function deactivate(): void {
+        if (ROOT.dataset.easterEgg) {
+            delete ROOT.dataset.easterEgg;
+        }
+        const el = document.querySelector<HTMLElement>(
+            "#home-easter-egg .egg-line"
+        );
+        // Wipe the text after the slide-out finishes so the next activation
+        // can populate it cleanly without a flash of stale content.
+        if (el) {
+            window.setTimeout(() => {
+                if (!ROOT.dataset.easterEgg) el.textContent = "";
+            }, 700);
+        }
+    }
+
+    function clearTimer(): void {
+        if (idleTimer !== undefined) {
+            window.clearTimeout(idleTimer);
+            idleTimer = undefined;
+        }
+    }
+
+    function scheduleIdle(): void {
+        clearTimer();
+        if (!isHome() || !isLandscape()) return;
+        idleTimer = window.setTimeout(activate, IDLE_MS);
+    }
+
+    function onActivity(): void {
+        deactivate();
+        scheduleIdle();
+    }
+
+    function install(): void {
+        if (installed) return;
+        installed = true;
+        const events: Array<keyof WindowEventMap> = [
+            "mousemove",
+            "pointerdown",
+            "keydown",
+            "wheel",
+            "touchstart",
+            "scroll",
+            "resize",
+        ];
+        for (const e of events) {
+            window.addEventListener(e, onActivity, { passive: true });
+        }
+        document.addEventListener("astro:page-load", () => {
+            // Re-arm on every navigation; deactivate immediately if we left home.
+            deactivate();
+            scheduleIdle();
+        });
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) {
+                clearTimer();
+                deactivate();
+            } else {
+                scheduleIdle();
+            }
+        });
+    }
+
+    install();
+    scheduleIdle();
+</script>
+
+<style is:global>
+    #home-easter-egg {
+        position: fixed;
+        left: 0;
+        top: 50%;
+        z-index: 4;
+        pointer-events: none;
+        max-width: min(360px, 38vw);
+        opacity: 0;
+        transform: translate(-110%, -50%);
+        transition:
+            transform 720ms cubic-bezier(0.19, 1, 0.22, 1),
+            opacity 600ms ease;
+    }
+
+    #home-easter-egg .egg-frame {
+        margin: 0 0 0 1.75rem;
+        padding: 1.1rem 1.4rem;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(12, 12, 16, 0.42);
+        backdrop-filter: blur(20px) saturate(135%);
+        -webkit-backdrop-filter: blur(20px) saturate(135%);
+        border-radius: 0.85rem;
+        box-shadow:
+            0 1px 0 rgba(255, 255, 255, 0.06) inset,
+            0 24px 48px -32px rgba(0, 0, 0, 0.7);
+    }
+
+    #home-easter-egg .egg-line {
+        margin: 0;
+        font-family: var(--font-serif, "New Computer Modern Roman", serif);
+        font-style: italic;
+        font-size: 1rem;
+        line-height: 1.55;
+        letter-spacing: 0.02em;
+        color: var(--planet-accent, #e2d1c3);
+        white-space: pre-wrap;
+    }
+
+    /* When the egg fires, the data-easter-egg attribute on <html> drives both
+       the panel slide-in AND a planet drift. The attribute is only set after
+       the planet textures are confirmed ready, so the text below cannot reveal
+       prematurely. */
+    html[data-easter-egg] #home-easter-egg {
+        opacity: 1;
+        transform: translate(0, -50%);
+    }
+
+    /* Push the planet rightward by overriding --p-x. Specificity matches the
+       per-planet home overrides (e.g. saturn) and is declared later, so this
+       wins. The existing #planet-stage transform listens to --p-x and the
+       home-planet-entered transition handles the easing. */
+    html[data-page="home"][data-easter-egg] {
+        --p-x: 32vw;
+    }
+    html[data-page="home"][data-easter-egg][data-planet-id="saturn"] {
+        --p-x: 30vw;
+    }
+
+    /* The transition on the planet-stage is only declared on the entered class,
+       so make sure it animates this drift smoothly too. */
+    html[data-page="home"][data-easter-egg] #planet-stage {
+        transition:
+            transform 1100ms cubic-bezier(0.19, 1, 0.22, 1),
+            opacity 680ms ease,
+            filter 980ms ease;
+    }
+
+    /* Portrait or tiny screens — never show. The JS gate also blocks this, the
+       CSS fallback is just a defense-in-depth. */
+    @media (orientation: portrait), (max-width: 767px) {
+        #home-easter-egg {
+            display: none !important;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #home-easter-egg {
+            transition: none;
+        }
+        html[data-page="home"][data-easter-egg] #planet-stage {
+            transition: none;
+        }
+    }
+</style>

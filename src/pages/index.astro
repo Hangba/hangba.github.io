@@ -5,6 +5,7 @@ import siteConfig from "../site.config";
 import { sortItemsByDateDesc, withBase } from "../utils/helpers";
 import PostCardPreview from "../components/PostCardPreview.astro";
 import Hero from "../components/Hero.astro";
+import HomeEasterEgg from "../components/HomeEasterEgg.astro";
 import ArrowRight from "../icons/ArrowRight.astro";
 
 const allPosts = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
@@ -17,6 +18,7 @@ const allPosts = (await getCollection("blogs", ({ data }) => !data.draft)).sort(
     pageTitle={siteConfig.title}
 >
     <Hero />
+    <HomeEasterEgg />
 
     <section
         id="recent-stories"

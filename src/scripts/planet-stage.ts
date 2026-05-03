@@ -27,6 +27,13 @@ type StageState = {
     targetStarsX?: number;
     targetStarsY?: number;
     hqLoaded: boolean;
+    // Last canvas size we pushed to the renderer. Used by syncRendererSize to
+    // skip redundant renderer.setSize() calls — necessary on mobile where
+    // visualViewport-resize and ResizeObserver fire spuriously during scroll
+    // (URL-bar animation), and each setSize causes a brief WebGL state flush
+    // that drops a frame and reads as the planet flickering / disappearing.
+    lastSyncW: number;
+    lastSyncH: number;
     onPlanetClick?: (event: MouseEvent) => void;
     onPointerMove?: (event: PointerEvent) => void;
     onPointerLeave?: () => void;
@@ -46,6 +53,18 @@ const PLANET_SWITCH_IN_MS = 920;
 const STAR_PARALLAX_X = 0.1;
 const STAR_PARALLAX_Y = 0.07;
 let enteringClassTimer: number | undefined;
+// Tracks whether the home-planet intro has already been kicked off for the
+// current navigation cycle. The intro toggles `home-planet-preload` /
+// `home-planet-entered` and reads as the planet flying in from the upper-left.
+// `runHomePlanetIntro` is invoked from three lifecycle hooks (DOMContentLoaded,
+// astro:after-swap, astro:page-load) — without a guard, the second call would
+// REMOVE `home-planet-entered`, snap the planet back to the pre-load pose, and
+// then re-add the class 260ms later, replaying the intro. Visually this lines
+// up with the HQ texture finishing (both depend on the page becoming idle) and
+// reads as "the loading animation replays right after the HQ texture loads".
+// The flag is reset on every navigation in astro:before-preparation so a real
+// home → away → home round trip plays the intro again.
+let homeIntroScheduled = false;
 let planetSwitching = false;
 const planetClickRaycaster = new THREE.Raycaster();
 const planetClickPointer = new THREE.Vector2();
@@ -337,6 +356,16 @@ function syncRendererSize(s: StageState) {
     const w = s.starStageEl.clientWidth || window.innerWidth;
     const h = s.starStageEl.clientHeight || window.innerHeight;
     if (w <= 0 || h <= 0) return;
+    // Mobile guard: visualViewport-resize and the stage ResizeObserver can
+    // fire continuously while the URL bar animates during a scroll, even when
+    // the layout box (which drives clientWidth/clientHeight on a position:fixed
+    // stage with svh-based inset) hasn't actually changed. Each renderer.setSize
+    // flushes WebGL state and can drop a frame, so the planet visibly flickers
+    // or disappears during fast scroll. Bail out when the dimensions match the
+    // last sync — orientation changes and real resizes still pass through.
+    if (w === s.lastSyncW && h === s.lastSyncH) return;
+    s.lastSyncW = w;
+    s.lastSyncH = h;
     s.renderer.setSize(w, h, false);
     s.starRenderer.setSize(w, h, false);
     applyCameraFill(s);
@@ -567,6 +596,10 @@ async function animatePlanetIn(
 async function switchPlanet(nextPlanet: Planet) {
     if (!state || planetSwitching) return;
     planetSwitching = true;
+    // The new sphere texture is about to be swapped in — clear the ready flag
+    // so the easter-egg overlay (or any other consumer) does not flash text for
+    // the wrong planet during the swap.
+    delete document.documentElement.dataset.planetReady;
     const s = state;
 
     try {
@@ -574,6 +607,7 @@ async function switchPlanet(nextPlanet: Planet) {
         // Wait for the new textures to finish loading before revealing the
         // planet, so the in-animation never shows the previous texture.
         await applyPlanetSwap(s, nextPlanet);
+        document.documentElement.dataset.planetReady = "true";
         await animatePlanetIn(s.stageEl, outAnim);
     } finally {
         planetSwitching = false;
@@ -645,6 +679,10 @@ function startThree(stage: HTMLElement, planet: Planet) {
 
     const loader = new THREE.TextureLoader();
     const colorMap = loader.load(planet.colorMap, () => {
+        // Mark the planet as ready *after* its primary colorMap has loaded —
+        // consumers like the homepage easter egg gate on this so they never
+        // reveal planet-specific content while the sphere is still untextured.
+        document.documentElement.dataset.planetReady = "true";
         if (state) {
             const req = (
                 window as unknown as {
@@ -730,6 +768,10 @@ function startThree(stage: HTMLElement, planet: Planet) {
         stars: starPoints,
         targetStarsX: 0,
         targetStarsY: 0,
+        // Seed with the size we just pushed to the renderers so the first
+        // syncRendererSize() can short-circuit if nothing has actually changed.
+        lastSyncW: w,
+        lastSyncH: h,
     };
 
     const tick = () => {
@@ -811,8 +853,13 @@ function startThree(stage: HTMLElement, planet: Planet) {
     window.addEventListener("resize", scheduleResize, { passive: true });
     const viewport = window.visualViewport;
     if (viewport) {
+        // Listen for visualViewport.resize ONLY — never scroll. On mobile the
+        // visual viewport scrolls every frame as the URL bar animates, and a
+        // setSize per scroll tick causes the planet to flicker. The scroll
+        // events do not change the stage's CSS box (it's position:fixed),
+        // so syncing on them buys nothing. Real layout changes still come
+        // through window.resize and the ResizeObserver below.
         viewport.addEventListener("resize", scheduleResize, { passive: true });
-        viewport.addEventListener("scroll", scheduleResize, { passive: true });
     }
 
     const stageResizeObserver = new ResizeObserver(() => {
@@ -876,9 +923,25 @@ function runHomePlanetIntro() {
     const root = document.documentElement;
     if (root.dataset.page !== "home") {
         root.classList.remove("home-planet-preload", "home-planet-entered");
+        homeIntroScheduled = false;
         return;
     }
 
+    // Idempotent within a navigation cycle. If the intro has already been
+    // scheduled (or finished — entered class present), don't replay it.
+    // Replaying would tear `home-planet-entered` off, snap the planet back to
+    // the off-screen pre-load pose, and fly it in again — which the user reads
+    // as "the loading animation replays after the HQ texture finishes loading"
+    // because astro:page-load tends to fire right around HQ-load time.
+    if (
+        homeIntroScheduled ||
+        root.classList.contains("home-planet-entered")
+    ) {
+        root.classList.add("home-planet-preload");
+        return;
+    }
+
+    homeIntroScheduled = true;
     root.classList.add("home-planet-preload");
     root.classList.remove("home-planet-entered");
 
@@ -957,6 +1020,7 @@ function destroyStage() {
     if (!state) return;
     const s = state;
     cancelAnimationFrame(s.raf);
+    delete document.documentElement.dataset.planetReady;
     try {
         if (s.onVisibilityChange) {
             document.removeEventListener("visibilitychange", s.onVisibilityChange);
@@ -978,7 +1042,11 @@ function destroyStage() {
         }
         if (s.onViewportResize && window.visualViewport) {
             window.visualViewport.removeEventListener("resize", s.onViewportResize);
-            window.visualViewport.removeEventListener("scroll", s.onViewportResize);
+            // The "scroll" listener was removed to stop per-scroll-tick
+            // setSize calls from flickering the planet on mobile. Calling
+            // removeEventListener for a never-registered listener is a no-op,
+            // but we keep the symmetry explicit to make the intent obvious to
+            // future maintainers reading the install vs teardown side-by-side.
         }
         if (s.stageResizeObserver) {
             s.stageResizeObserver.disconnect();
@@ -1049,6 +1117,8 @@ document.addEventListener("astro:before-preparation", (event) => {
 
     if (targetPage !== "home") {
         root.classList.remove("home-planet-preload", "home-planet-entered");
+        // Leaving home — let the intro play again next time we come back.
+        homeIntroScheduled = false;
     }
 
     // Persist the active planet on every navigation so target pages without
