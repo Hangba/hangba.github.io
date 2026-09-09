@@ -2,7 +2,7 @@
 title: "仙人掌"
 description: "一则关于一株仙人掌的短故事。"
 author: "HangbaSteve"
-draft: true
+draft: false
 image:
   url: "../../assets/images/1.png"
   alt: "Cactus Image"
